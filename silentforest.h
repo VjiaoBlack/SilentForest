@@ -31,12 +31,13 @@ void getInput();
 void cleanup();
 void init(char *title);
 void update();
+void draw();
 
 int SCREEN_WIDTH = 640;
 int SCREEN_HEIGHT = 480;
 int running;
 
-int x, y, sx, sy;
+int xoffset, yoffset, sx, sy, gridx, gridy;
 int delay;
 
 bool keysHeld[323] = {false};
