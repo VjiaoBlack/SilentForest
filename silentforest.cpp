@@ -18,13 +18,14 @@ int main(int argc, char *argv[]) {
 
         SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
         draw();
-        drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset, 32, 32);
         SDL_Flip(screen);
 
         /* Sleep briefly to stop sucking up all the CPU time */
         SDL_Delay(16);
     }
     SDL_FreeSurface(bitmap);
+    SDL_FreeSurface(tree);
+    SDL_FreeSurface(grass);
     /* Exit the program */
     exit(0);
 }
@@ -32,7 +33,17 @@ int main(int argc, char *argv[]) {
 void draw() {
     for (int y = 0; y < 15; y++) {
         for (int x = 0; x < 20; x++) {
-            drawSprite(grass, screen, 0,0,x*32,y*32,32,32);
+            if (grid[y][x].height == 32 && grid[y][x].width == 32) {
+                drawSprite(grid[y][x].graphic, screen, 0,0,grid[y][x].gridx*32,grid[y][x].gridy*32,32,32);
+            } else {
+                drawSprite(grass, screen, 0,0,grid[y][x].gridx*32,grid[y][x].gridy*32,32,32); // placehodler
+                drawSprite(grid[y][x].graphic, screen, 0, 0, grid[y][x].gridx*32 - grid[y][x].width + 32, grid[y][x].gridy*32 - grid[y][x].height + 32, grid[y][x].width, grid[y][x].height);
+            }
+            if ((x == gridx && y == gridy) ||
+                (xoffset > 0 && gridx + 1 == x && y == gridy) || 
+                (yoffset > 0 && gridy + 1 == y && x == gridx)) {
+                drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset, 32, 32);
+            }
         }
     }
 }
@@ -103,7 +114,6 @@ void update() {
         delay--;
     }
 
-    printf("delay: %d\n", delay);
     switch (delay / 10) {
         case 0:
         case 2:
@@ -139,8 +149,48 @@ void init(char *title) {
     running = 1, xoffset = 0, yoffset = 0, sx = 0, sy = 3, gridx = 0, gridy = 0;
 
     bitmap = SDL_LoadBMP("Chris.bmp");
-    SDL_SetColorKey( bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(bitmap->format, 255, 0, 255) ); 
     grass = SDL_LoadBMP("grass.bmp");
+
+    tree = SDL_LoadBMP("tree.bmp");
+    SDL_SetColorKey( tree, SDL_SRCCOLORKEY, SDL_MapRGB(tree->format, 255, 0, 255) ); 
+    SDL_SetColorKey( bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(bitmap->format, 255, 0, 255) ); 
+
+
+    char tiles[15][20];
+    char temp;
+
+    FILE* fp = fopen("map.txt", "r");
+
+    for (int y = 0; y < 15; y++) {
+        for (int x = 0; x < 20; x++) {
+            temp = fgetc(fp);
+            if(temp == '\n'){
+                temp = fgetc(fp);
+            }
+            if(feof(fp)){
+                break;
+            }
+            tiles[y][x] = temp;
+        }
+    }
+
+
+    for (int y = 0; y < 15; y++) {
+        for (int x = 0; x < 20; x++) {
+            switch (tiles[y][x]) {
+                case 'g':
+                    grid[y][x] = *new Tile(1000,x,y,grass, 32,32);
+                    break;
+                case 't':
+                    grid[y][x] = *new Tile(1000,x,y,tree, 96, 32);
+                    break;
+                default:
+                    grid[y][x] = *new Tile(1000,x,y,grass, 32, 32);
+                    break;
+
+            }
+        }
+    }
 
 }
 

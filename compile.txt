@@ -1,0 +1,1 @@
+g++ silentforest.cpp -o silentforest `sdl-config --cflags --libs`
