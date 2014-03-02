@@ -77,20 +77,28 @@ void update() {
         running = false;
     }
     if ( keysHeld[SDLK_UP] && (xoffset == 0) && (yoffset == 0)) {
-        gridy--;
-        yoffset = 32;
+        if (grid[gridy - 1][gridx].id / 1000 == 1 && gridy > 0) {
+            gridy--;
+            yoffset = 32;
+        }
         sy = 0;
     } else if (keysHeld[SDLK_DOWN] && (xoffset == 0) && (yoffset == 0)) {
-        gridy++;
-        yoffset = -32;
+        if (grid[gridy + 1][gridx].id / 1000 == 1 && gridy < 15) {
+            gridy++;
+            yoffset = -32;
+        }
         sy = 2;
-    } else if ( keysHeld[SDLK_LEFT]  && (xoffset == 0) && (yoffset == 0)) {
-        gridx--;
-        xoffset = 32;
+    } else if ( keysHeld[SDLK_LEFT]  && (xoffset == 0) && (yoffset == 0) ) {
+        if (grid[gridy][gridx - 1].id / 1000 == 1 && gridx > 0) {
+            gridx--;
+            xoffset = 32;
+        }
         sy = 1;
-    } else if ( keysHeld[SDLK_RIGHT]  && (xoffset == 0) && (yoffset == 0)) {
-        gridx++;
-        xoffset = -32;
+    } else if ( keysHeld[SDLK_RIGHT]  && (xoffset == 0) && (yoffset == 0) ) {
+        if (grid[gridy][gridx + 1].id / 1000 == 1 && gridx < 20) {
+            gridx++;
+            xoffset = -32;
+        }
         sy = 3;
     } else if (xoffset == 0 && yoffset == 0) {
         delay = 0;
@@ -182,7 +190,7 @@ void init(char *title) {
                     grid[y][x] = *new Tile(1000,x,y,grass, 32,32);
                     break;
                 case 't':
-                    grid[y][x] = *new Tile(1000,x,y,tree, 96, 32);
+                    grid[y][x] = *new Tile(1,x,y,tree, 96, 32);
                     break;
                 default:
                     grid[y][x] = *new Tile(1000,x,y,grass, 32, 32);
