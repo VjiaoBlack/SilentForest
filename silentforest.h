@@ -1,24 +1,29 @@
 #include "SDL/SDL.h"
 #include <stdio.h>
+#include <map>
+using namespace std;
 
 class Tile {
 public:
     int id; // 0-999 unwalkable, 1000-1999 walkable, 2000-2999 special tile (launches scene), 3000-3999 special tile (interactive) ...
     int gridx, gridy;
     int height, width;
+    int srcx, srcy;
     SDL_Surface* graphic;
-    Tile(int, int, int, SDL_Surface*, int, int);
+    Tile(int, int, int, SDL_Surface*, int, int, int, int);
     Tile();
     // note that an actual grid should contain a linked list of tile at every cor.
 };
 
-Tile::Tile(int a, int b, int c, SDL_Surface* d, int h, int w) {
+Tile::Tile(int a, int b, int c, SDL_Surface* d, int h, int w, int sx, int sy) {
     id = a;
     gridx = b;
     gridy = c;
     graphic = d;
     height = h;
     width = w;
+    srcx = sx;
+    srcy = sy;
 }
 
 Tile::Tile() {
@@ -55,6 +60,20 @@ void cleanup();
 void init(char *title);
 void update();
 void draw();
+void drawText(char*, int, int);
+int drawLetter(char,int,int); // char to draw, int x, int y
+void menu_loop();
+void drawmenu();
+
+typedef struct letter_t {
+    int width;
+    int xpos;
+    int ypos;
+} letter_t;
+
+std::map<char,letter_t> letter_data;
+
+
 
 Tile grid[15][20];
 
@@ -71,5 +90,9 @@ SDL_Surface *screen;
 SDL_Surface *grass;
 SDL_Surface *bitmap;
 SDL_Surface *tree;
+SDL_Surface *font;
+SDL_Surface *intro;
+SDL_Surface *board;
+SDL_Surface *water;
 
 void drawSprite(SDL_Surface*, SDL_Surface*, int, int, int, int, int, int);
