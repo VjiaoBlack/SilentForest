@@ -51,7 +51,7 @@ public:
         return *this;
     }
     void additem(int id) {
-        printf("(placeholder) item of id:%d added.\n", id);
+        printf("(placeholder) item of id:%d added to tile at %d,%d.\n", id, gridx, gridy);
         return;
     }
     // note that an actual grid should contain a linked list of tile at every cor.
@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
     int end = 0;
     int x, y, id;
     char* pointer; // each pointer gets 10 chars.
+    char test;
 
     char cmd[32];
     if (argc == 2) {
@@ -102,8 +103,9 @@ int main(int argc, char* argv[]) {
             while (!end) {
                 switch (which) {
                     case -1: // currently does not have a specific scan into data.
-                        printf("scanning for next command...\n");
                         fgets(cmd, 16, mapfile);
+                        if (*cmd != ']')
+                            printf("scanning for next command...\n");
                         switch (*cmd) {
                             case 't':
                                 which = 0;
@@ -121,10 +123,6 @@ int main(int argc, char* argv[]) {
                                 end = 1;
                                 printf("next command is |end|.\n");
                                 break;
-                            case ']':
-                                printf("|%s| has ended.\n", cmd);
-                                which = -1;
-                                break;
                         }
                         break;
                     case 0: // currently scanning into tiles.
@@ -136,12 +134,16 @@ int main(int argc, char* argv[]) {
                         }
                         break;
                     case 1:
-                        fscanf(mapfile,"%d;%d:{",&x,&y);
-                        while(fscanf(mapfile,"%d",&id)) {
-                            tiles(x,y).additem(id);
-                            if (fgetc(mapfile) == '}') { // normally would be commas
-                                break;
+                        if (fscanf(mapfile,"%d;%d:{",&x,&y)) {
+                            while(fscanf(mapfile,"%d",&id)) {
+                                tiles(x,y).additem(id);
+                                if ( (test = fgetc(mapfile)) == '}') { // normally would be commas
+                                    break;
+                                }
                             }
+                        } else {
+                            which = -1;
+                            printf("item input syntax broken; item input has ended.\n");
                         }
                         break;
                     case 2:
