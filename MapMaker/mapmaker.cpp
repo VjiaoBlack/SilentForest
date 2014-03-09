@@ -40,6 +40,7 @@ public:
     int id; // 0-999 walkable, 1000-1999 unwalkable, 2000-2999 special tile (launches scene), 3000-3999 special tile (interactive) ...
     int gridx, gridy;
     Graphic* graphic;
+    // linked list of items
     Tile(int, int, int, Graphic*);
     Tile();
     Tile& operator= (const Tile *t) {
@@ -48,6 +49,10 @@ public:
         gridy = t->gridy;
         graphic = t->graphic;
         return *this;
+    }
+    void additem(int id) {
+        printf("(placeholder) item of id:%d added.\n", id);
+        return;
     }
     // note that an actual grid should contain a linked list of tile at every cor.
 };
@@ -82,6 +87,8 @@ void init_map(int);
 int main(int argc, char* argv[]) {
     int which = -1; // -1 is uninitialized, 0 is tiles, 1 is items, 2 is special
     int end = 0;
+    int x, y, id;
+    char* pointer; // each pointer gets 10 chars.
 
     char cmd[32];
     if (argc == 2) {
@@ -94,7 +101,7 @@ int main(int argc, char* argv[]) {
             printf("initialized map with given constraints.\n");
             while (!end) {
                 switch (which) {
-                    case -1: // currently does not have a 
+                    case -1: // currently does not have a specific scan into data.
                         printf("scanning for next command...\n");
                         fgets(cmd, 16, mapfile);
                         switch (*cmd) {
@@ -120,11 +127,21 @@ int main(int argc, char* argv[]) {
                                 break;
                         }
                         break;
-                    case 0:
+                    case 0: // currently scanning into tiles.
+                        fscanf(mapfile,"{pos:%d;%d|id:%d}\n", &x, &y, &id);
+                        printf("changed tile at %d, %d to id:%d\n", x, y, id);
                         break;
                     case 1:
+                        fscanf(mapfile,"%d;%d:{",&x,&y);
+                        while(fscanf(mapfile,"%d",&id)) {
+                            tiles(x,y).additem(id);
+                            if (fgetc(mapfile) == '}') { // normally would be commas
+                                break;
+                            }
+                        }
                         break;
                     case 2:
+                        // i have no idea what to do for this, gg.
                         break;
                 }
 
@@ -173,4 +190,9 @@ void init_map(int id) {
             tiles(x,y) = new Tile(id, x, y, NULL);
         }
     }
+}
+
+char* data_to_string() {
+    printf("error! data_to_string has not yet been implemented.\n");
+    return "help";
 }
