@@ -102,16 +102,26 @@ void menu_loop() {
 void draw() {
     for (int y = 0; y < 15; y++) {
         for (int x = 0; x < 20; x++) {
-            if (grid[y][x].height == 32 && grid[y][x].width == 32) {
-                drawSprite(grid[y][x].graphic, screen, grid[y][x].srcx, grid[y][x].srcy, grid[y][x].gridx*32,grid[y][x].gridy*32,32,32);
-            } else {
-                drawSprite(grass, screen, 0,0,grid[y][x].gridx*32,grid[y][x].gridy*32,32,32); // placehodler
-                drawSprite(grid[y][x].graphic, screen, 0, 0, grid[y][x].gridx*32 - grid[y][x].width + 32, grid[y][x].gridy*32 - grid[y][x].height + 32, grid[y][x].width, grid[y][x].height);
+            switch (grid[y][x].id) {
+                case 1000: // grass
+                    drawSprite(grid[y][x].graphic, screen, grid[y][x].srcx, grid[y][x].srcy, grid[y][x].gridx*32,grid[y][x].gridy*32,32,32);
+                    break;
+                case 1: // tree
+                    drawSprite(grass, screen, 0,0,grid[y][x].gridx*32,grid[y][x].gridy*32,32,32); // placehodler
+                    drawSprite(grid[y][x].graphic, screen, 0, 0, grid[y][x].gridx*32 - grid[y][x].width + 32, grid[y][x].gridy*32 - grid[y][x].height + 32, grid[y][x].width, grid[y][x].height);
+                    break;
+                case 2: // water
+                    break;
+
+
+
             }
             if ((x == gridx && y == gridy) ||
                 (xoffset > 0 && gridx + 1 == x && y == gridy) || 
                 (yoffset > 0 && gridy + 1 == y && x == gridx)) {
-                drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset - 12, 32, 32);
+                drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset, 32, 32); // draws char.
+                // NOTE: must implement the walking-on-gridlines algorithm
+                    // MUST MUST MUST IMPLEMENT :((
             }
         }
     }
@@ -141,7 +151,7 @@ void getInput() {
 
 void update() {
     if (delay < 1) 
-        delay = 16;
+        delay = 40;
     if ( keysHeld[SDLK_ESCAPE] ) {
         running = false;
     }
@@ -175,23 +185,23 @@ void update() {
     }
 
     if (xoffset > 0) {
-        xoffset -= 4;
+        xoffset -= 2;
         delay--;
     }
     if (xoffset < 0) {
-        xoffset += 4;
+        xoffset += 2;
         delay--;
     }
     if (yoffset > 0) {
-        yoffset -= 4;
+        yoffset -= 2;
         delay--;
     }
     if (yoffset < 0) {
-        yoffset += 4;
+        yoffset += 2;
         delay--;
     }
 
-    switch (delay / 4 ) {
+    switch (delay / 10 ) {
         case 0:
         case 2:
             sx = 0;
@@ -322,7 +332,6 @@ void init(char *title) {
         }
     }
 
-
     for (int y = 0; y < 15; y++) { // loads tiles
         for (int x = 0; x < 20; x++) {
             switch (tiles[y][x]) {
@@ -342,21 +351,6 @@ void init(char *title) {
             }
         }
     }
-
-    for (int y = 0; y < 15; y++) { // does rendering stuff for water (specifically)
-        for (int x = 0; x < 20; x++) {
-            switch (tiles[y][x]) {
-                case 'w':
-                    grid[y][x] = *new Tile(2,x,y,water, 32, 32, 32, 64);
-                    break;
-                default:
-                    grid[y][x] = *new Tile(1000,x,y,grass, 32, 32, 0, 0);
-                    break;
-
-            }
-        }
-    }
-
 }
 
 void cleanup() {

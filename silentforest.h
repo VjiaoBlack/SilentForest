@@ -22,8 +22,8 @@ Tile::Tile(int a, int b, int c, SDL_Surface* d, int h, int w, int sx, int sy) {
     graphic = d;
     height = h;
     width = w;
-    srcx = sx;
-    srcy = sy;
+    srcx = sx; // remove in next update
+    srcy = sy; // remove in next update
 }
 
 Tile::Tile() {

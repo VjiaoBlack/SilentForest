@@ -1,0 +1,1 @@
+g++ mapmaker.c -o mapmaker `sdl-config --cflags --libs`
