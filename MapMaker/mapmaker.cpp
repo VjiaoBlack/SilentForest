@@ -128,8 +128,12 @@ int main(int argc, char* argv[]) {
                         }
                         break;
                     case 0: // currently scanning into tiles.
-                        fscanf(mapfile,"{pos:%d;%d|id:%d}\n", &x, &y, &id);
-                        printf("changed tile at %d, %d to id:%d\n", x, y, id);
+                        if (fscanf(mapfile,"{pos:%d;%d|id:%d}\n", &x, &y, &id)) {
+                            printf("changed tile at %d, %d to id:%d\n", x, y, id);
+                        } else {
+                            which = -1;
+                            printf("tile input syntax broken; tile input has ended.\n");
+                        }
                         break;
                     case 1:
                         fscanf(mapfile,"%d;%d:{",&x,&y);
