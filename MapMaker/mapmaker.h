@@ -1,13 +1,12 @@
-#import "SDL/SDL.h"
-#import "id.h"
-#import "mapmaker.h"
+#include "SDL/SDL.h"
+#include "id.h"
 
-#import <stdio.h>
-#import <stdlib.h>
-#import <map>
-#import <list>
-#import <array>
-#import <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <map>
+#include <list>
+//#include <array>
+#include <iostream>
 
 
 using namespace std;

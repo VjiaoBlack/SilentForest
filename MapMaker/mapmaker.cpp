@@ -1,5 +1,5 @@
 
-#import "mapmaker.h"
+#include "mapmaker.h"
 
 // code starts ##################################
 
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     printf("drawing...\n");
 
     init();
-    //while (running) {
+    while (running) {
         get_input();  
 
         update();
@@ -110,12 +110,12 @@ int main(int argc, char* argv[]) {
         //draws the scene
 
         SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-        //draw();
+        draw();
         SDL_Flip(screen);
 
         /* Sleep briefly to stop sucking up all the CPU time */
-    //    SDL_Delay(16);
-    //}
+        SDL_Delay(16);
+    }
     SDL_FreeSurface(screen);
     /* Exit the program */
     SDL_Quit();
