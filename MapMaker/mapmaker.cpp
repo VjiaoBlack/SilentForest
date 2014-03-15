@@ -20,15 +20,16 @@ int main(int argc, char* argv[]) {
             
 
             init_map(base_tile_id);
-            // for (y = 0; y < height; y++) {
-            //     for (x = 0; x < width; x++) {
-            //         // this code has verified that initiliazer works
-            // printf("0>%d,%d: ",&(tiles(x,y)->graphic[0].srcx),&(tiles(x,y)->graphic[0].srcy));
-            // printf("1>%d,%d: ",&(tiles(x,y)->graphic[1].srcx),&(tiles(x,y)->graphic[1].srcy));
-            // printf("2>%d,%d: ",&(tiles(x,y)->graphic[2].srcx),&(tiles(x,y)->graphic[2].srcy));
-            // printf("3>%d,%d: \n",(tiles(x,y)->graphic[3].srcx),&(tiles(x,y)->graphic[3].srcy));
-            //     }
-            // }
+
+            for (y = 0; y < height; y++) {
+                for (x = 0; x < width; x++) {
+                    // this code has verified that initiliazer works
+                    printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
+                    printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
+                    printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
+                    printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
+                }
+            }
 
             printf("initialized map with given constraints.\n");
             while (!end) {
@@ -68,7 +69,7 @@ int main(int argc, char* argv[]) {
                     case 1:
                         if (fscanf(mapfile,"%d;%d:{",&x,&y)) {
                             while(fscanf(mapfile,"%d",&id)) {
-                                //tiles(x,y)->additem(id);
+                                //tiles(x,y).additem(id);
                                 if ( (test = fgetc(mapfile)) == '}') { // normally would be commas
                                     break;
                                 }
@@ -92,7 +93,6 @@ int main(int argc, char* argv[]) {
 
     } else {
         printf("./mapmaker <mapname>\n");
-        return -1;
     }
 
     printf("ending...\n");
@@ -100,17 +100,7 @@ int main(int argc, char* argv[]) {
 
     printf("--------------\n");
     printf("drawing...\n");
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            // this code has verified that initiliazer works
-/*            printf("0>%d,%d: ",tiles(x,y)->graphic[0].srcx,tiles(x,y)->graphic[0].srcy);
-            printf("1>%d,%d: ",tiles(x,y)->graphic[1].srcx,tiles(x,y)->graphic[1].srcy);
-            printf("2>%d,%d: ",tiles(x,y)->graphic[2].srcx,tiles(x,y)->graphic[2].srcy);
-            printf("3>%d,%d: \n",tiles(x,y)->graphic[3].srcx,tiles(x,y)->graphic[3].srcy);*/
-            std::cout<< tiles(x,y)->graphic[0].srcx;
-            printf("\n");
-        }
-    }
+
     init();
     //while (running) {
         get_input();  
@@ -120,7 +110,7 @@ int main(int argc, char* argv[]) {
         //draws the scene
 
         SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-        draw();
+        //draw();
         SDL_Flip(screen);
 
         /* Sleep briefly to stop sucking up all the CPU time */
@@ -200,7 +190,7 @@ void change_tile(int x, int y, int id) {
     // assumes the tile is in the middle of grid
     // note that the tiles are aligned; the 'id' is at the center of the tile.
 
-    tiles(x,y)->id = id;
+    tiles(x,y).id = id;
 
     update_tile(x,y, id); // TODO: udpate neighbors
     update_tile(x+1,y, id); 
@@ -220,14 +210,13 @@ void update_tile(int x, int y, int id) {
     //     new Graphic(16, 16, 0, 16, id), // bottom left
     //     new Graphic(16, 16, 16, 16, id) // bottom right
     // };
-    // tiles(x,y)->graphic = graphics;
+    // tiles(x,y).graphic = graphics;
 
 
     // note: make these switch cases into some kind of arrays.
     // Come on victor! You know how to shorten code.
 
-    Graphic graphics[5] = {
-        *new Graphic(16, 16, 0, 0, id),
+    Graphic graphics[4] = {
         *new Graphic(16, 16, 0, 0, id),
         *new Graphic(16, 16, 0, 0, id),
         *new Graphic(16, 16, 0, 0, id),
@@ -237,9 +226,9 @@ void update_tile(int x, int y, int id) {
 
 
     // top left 
-    a = tiles(x-1,y)->id == id; // left
-    b = tiles(x-1,y-1)->id == id; // top left
-    c = tiles(x,y-1)->id == id; // top
+    a = tiles(x-1,y).id == id; // left
+    b = tiles(x-1,y-1).id == id; // top left
+    c = tiles(x,y-1).id == id; // top
 
 
     switch (a + b*2 + c*4) {
@@ -279,9 +268,9 @@ void update_tile(int x, int y, int id) {
     graphics[0] = *new Graphic(16, 16, 0/*whichx*16*/, 0/*whichy*16*/, id); // shoud just modify.. but w.e
 
     // top right
-    a = tiles(x,y-1)->id == id; // top
-    b = tiles(x+1,y-1)->id == id; // top right
-    c = tiles(x+1,y)->id == id; // right
+    a = tiles(x,y-1).id == id; // top
+    b = tiles(x+1,y-1).id == id; // top right
+    c = tiles(x+1,y).id == id; // right
 
     switch (a + b*2 + c*4) {
         case 0: // none
@@ -324,9 +313,9 @@ void update_tile(int x, int y, int id) {
 
 
     // bottom left
-    a = tiles(x,y+1)->id == id; // bottom
-    b = tiles(x-1,y+1)->id == id; // bottom left
-    c = tiles(x-1,y)->id == id; // left
+    a = tiles(x,y+1).id == id; // bottom
+    b = tiles(x-1,y+1).id == id; // bottom left
+    c = tiles(x-1,y).id == id; // left
 
     switch (a + b*2 + c*4) {
         case 0: // none
@@ -368,9 +357,9 @@ void update_tile(int x, int y, int id) {
 
 
     // bottom right
-    a = tiles(x+1,y)->id == id; // right
-    b = tiles(x+1,y-1)->id == id; // bottom right
-    c = tiles(x,y-1)->id == id; // bottom
+    a = tiles(x+1,y).id == id; // right
+    b = tiles(x+1,y-1).id == id; // bottom right
+    c = tiles(x,y-1).id == id; // bottom
 
     switch (a + b*2 + c*4) {
         case 0: // none
@@ -409,7 +398,7 @@ void update_tile(int x, int y, int id) {
 
     graphics[3] = *new Graphic(16, 16, 0/*whichx*16*/, 0/*whichy*16*/, id);
 
-    tiles(x,y) = new Tile(id, x, y, graphics);
+    tiles(x,y) = *new Tile(id, x, y, graphics);
 
 
 }
@@ -423,25 +412,25 @@ void draw() {
             // printf("%d, %d\n", x, y);
 
 
-            // printf("0>%d,%d: ",tiles(x,y)->graphic[0].srcx,tiles(x,y)->graphic[0].srcy);
-            // printf("1>%d,%d: ",tiles(x,y)->graphic[1].srcx,tiles(x,y)->graphic[1].srcy);
-            // printf("2>%d,%d: ",tiles(x,y)->graphic[2].srcx,tiles(x,y)->graphic[2].srcy);
-            // printf("3>%d,%d: \n",tiles(x,y)->graphic[3].srcx,tiles(x,y)->graphic[3].srcy);
+            printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
+            printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
+            printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
+            printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
 
 
-            // printf("%d:", tiles(x,y)->id);
-            //drawSprite(sprite[tiles(x,y)->id]/*tiles(x,y)->graphic[0].image*/,screen,/*tiles(x,y)->graphic[0].srcx*/0,/*tiles(x,y)->graphic[0].srcy*/0,dx,dy,/*tiles(x,y)->graphic[0].height*/32,32/*tiles(x,y)->graphic[0].width*/);
-            drawSprite(sprite[tiles(x,y)->id], screen, tiles(x,y)->graphic[0].srcx, tiles(x,y)->graphic[0].srcy, dx   , dy   , 16, 16);
-            // printf("0>%d.%d,", tiles(x,y)->graphic[0].srcx, tiles(x,y)->graphic[0].srcy);// something wrong with this
+            // printf("%d:", tiles(x,y).id);
+            //drawSprite(sprite[tiles(x,y).id]/*tiles(x,y).graphic[0].image*/,screen,/*tiles(x,y).graphic[0].srcx*/0,/*tiles(x,y).graphic[0].srcy*/0,dx,dy,/*tiles(x,y).graphic[0].height*/32,32/*tiles(x,y).graphic[0].width*/);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[0].srcx, tiles(x,y).graphic[0].srcy, dx   , dy   , 16, 16);
+            // printf("0>%d.%d,", tiles(x,y).graphic[0].srcx, tiles(x,y).graphic[0].srcy);// something wrong with this
             
-            drawSprite(sprite[tiles(x,y)->id], screen, tiles(x,y)->graphic[1].srcx, tiles(x,y)->graphic[1].srcy, dx+16, dy   , 16, 16);
-            // printf("1>%d.%d,", tiles(x,y)->graphic[1].srcx, tiles(x,y)->graphic[1].srcy); // and this
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[1].srcx, tiles(x,y).graphic[1].srcy, dx+16, dy   , 16, 16);
+            // printf("1>%d.%d,", tiles(x,y).graphic[1].srcx, tiles(x,y).graphic[1].srcy); // and this
             
-            drawSprite(sprite[tiles(x,y)->id], screen, tiles(x,y)->graphic[2].srcx, tiles(x,y)->graphic[2].srcy, dx   , dy+16, 16, 16);
-            // printf("2>%d.%d,", tiles(x,y)->graphic[2].srcx, tiles(x,y)->graphic[2].srcy);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[2].srcx, tiles(x,y).graphic[2].srcy, dx   , dy+16, 16, 16);
+            // printf("2>%d.%d,", tiles(x,y).graphic[2].srcx, tiles(x,y).graphic[2].srcy);
             
-            drawSprite(sprite[tiles(x,y)->id], screen, tiles(x,y)->graphic[3].srcx, tiles(x,y)->graphic[3].srcy, dx+16, dy+16, 16, 16);
-            // printf("3>%d.%d   \n", tiles(x,y)->graphic[3].srcx, tiles(x,y)->graphic[3].srcy);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[3].srcx, tiles(x,y).graphic[3].srcy, dx+16, dy+16, 16, 16);
+            // printf("3>%d.%d   \n", tiles(x,y).graphic[3].srcx, tiles(x,y).graphic[3].srcy);
         }
         //printf("\n");
     }
@@ -453,8 +442,7 @@ void draw() {
 
 void init_map(int id) {
     int x, y;
-   // tiles = new Tile[height * width];
-    Tile* tiles[height*width];
+    tiles = new Tile[height * width];
     printf("tiles should be initilaized\n");
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
@@ -463,32 +451,31 @@ void init_map(int id) {
             //     update_tile(x,y,id);
             // }
 
-            /*Graphic graphics[5] = {
-                *new Graphic(16, 16, 0, 0, id),
+            Graphic graphics[4] = {
                 *new Graphic(16, 16, 0, 0, id),
                 *new Graphic(16, 16, 0, 0, id),
                 *new Graphic(16, 16, 0, 0, id),
                 *new Graphic(16, 16, 0, 0, id)
-            };*/
-            tiles(x,y) = new Tile(id, x, y); // weird large number shud be id
+            };
+            tiles(x,y) = *new Tile(id, x, y, graphics); // weird large number shud be id
+
+            // this code has verified that initiliazer works
+            // printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
+            // printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
+            // printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
+            // printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
         }
     }
 
-    // following still fine.
-                // this code has verified that initiliazer works
-
-    for (y = 0; y < height; y++) {
+        for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            // this should be unnecesdsry
-
-            printf("0>%d,%d: ",(tiles(x,y)->graphic[0].srcx),(tiles(x,y)->graphic[0].srcy));
-            printf("1>%d,%d: ",(tiles(x,y)->graphic[1].srcx),(tiles(x,y)->graphic[1].srcy));
-            printf("2>%d,%d: ",(tiles(x,y)->graphic[2].srcx),(tiles(x,y)->graphic[2].srcy));
-            printf("3>%d,%d: \n",(tiles(x,y)->graphic[3].srcx),(tiles(x,y)->graphic[3].srcy));
-
+            // this code has verified that initiliazer works
+            printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
+            printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
+            printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
+            printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
         }
     }
-    printf("ADFHADFHFDAFH D%d\n", tiles[0]->graphic[3].srcy);
 }
 
 char* data_to_string() {

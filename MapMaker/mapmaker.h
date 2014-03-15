@@ -130,7 +130,7 @@ Tile::Tile() {
     graphic = graphics;
 }
 
-Tile** tiles;
+Tile* tiles;
 int width;
 int height;
 int base_tile_id;
