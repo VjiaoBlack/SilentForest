@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
                     printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
                 }
             }
-
             printf("initialized map with given constraints.\n");
             // while (!end) {
             //     switch (which) {
@@ -450,7 +449,7 @@ void init_map(int id) {
     int x, y;
     height = 10;
     width = 15;
-    tiles = new Tile[height * width];
+    tiles.resize(height * width);
     printf("tiles should be initilaized\n");
 
     for (y = 0; y < height; y++) {
@@ -460,12 +459,13 @@ void init_map(int id) {
             //     update_tile(x,y,id);
             // }
 
-            Graphic graphics[4] = {
-                *new Graphic(16, 16, 0, 0, id),
-                *new Graphic(16, 16, 0, 0, id),
-                *new Graphic(16, 16, 0, 0, id),
-                *new Graphic(16, 16, 0, 0, id)
-            };
+            std::vector<Graphic> graphics (4);
+
+            graphics[0] = new Graphic(16, 16, 0, 0, id);
+            graphics[1] = new Graphic(16, 16, 0, 0, id);
+            graphics[2] = new Graphic(16, 16, 0, 0, id);
+            graphics[3] = new Graphic(16, 16, 0, 0, id);
+
             tiles(x,y) = *new Tile(id, x, y, graphics); // weird large number shud be id
 
             // this code has verified that initiliazer works

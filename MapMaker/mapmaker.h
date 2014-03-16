@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <map>
 #include <list>
-//#include <array>
+#include <vector>
 #include <iostream>
 
 
@@ -18,6 +18,7 @@ class Graphic {
 public: 
     int height, width;
     int srcx, srcy;
+
     Graphic& operator= (const Graphic *g) {
         height = g->height;
         width = g->width;
@@ -82,11 +83,10 @@ class Tile {
 public:
     int id; // 0-999 walkable, 1000-1999 unwalkable, 2000-2999 special tile (launches scene), 3000-3999 special tile (interactive) ...
     int gridx, gridy;
-    Graphic* graphic;
-    //std::array<Graphic> graphicpointer;
+    std::vector<Graphic> graphic;
     std::list<Object> objects;
 
-    Tile(int, int, int, Graphic*);
+    Tile(int, int, int, std::vector<Graphic>);
     Tile(int,int,int);
     Tile();
     Tile& operator= (const Tile *t) {
@@ -106,7 +106,7 @@ public:
     // note that an actual grid should contain a linked list of tile at every cor.
 };
 
-Tile::Tile(int identifier, int gridxcor, int gridycor, Graphic* graphicpointer) {
+Tile::Tile(int identifier, int gridxcor, int gridycor, std::vector<Graphic> graphicpointer) {
     id = identifier;
     gridx = gridxcor;
     gridy = gridycor;
@@ -117,19 +117,17 @@ Tile::Tile(int ident, int grdx, int grdy) {
     id = ident;
     gridx = grdx;
     gridy = grdy;
-    Graphic graphics[5];
-    graphic = graphics;
+    graphic.resize(4);
 }
 
 Tile::Tile() {
     id = 0;
     gridx = 0;
     gridy = 0;
-    Graphic graphics[5];
-    graphic = graphics;
+    graphic.resize(4);
 }
+std::vector<Tile> tiles;
 
-Tile* tiles;
 int width;
 int height;
 int base_tile_id;
