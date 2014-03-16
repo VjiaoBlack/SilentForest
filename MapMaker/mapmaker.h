@@ -11,7 +11,7 @@
 
 using namespace std;
 
-#define tiles(x,y) tiles[y*width + x]
+#define tiles(x,y) tiles.at((y)*width + (x))
 
 // Graphic class ################################
 class Graphic {
@@ -33,8 +33,8 @@ public:
 Graphic::Graphic(int h, int w, int sx, int sy, int id) {
     height = h;
     width = w;
-    srcx = 0;
-    srcy = 0; 
+    srcx = sx;
+    srcy = sy; 
 }
 
 Graphic::Graphic() {

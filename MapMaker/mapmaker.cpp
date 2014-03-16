@@ -6,121 +6,120 @@
 
 int main(int argc, char* argv[]) {
     int which = -1; // -1 is uninitialized, 0 is tiles, 1 is items, 2 is special
-    // int end = 0;
+    int end = 0;
     int x, y, id;
-    // char* pointer; // each pointer gets 10 chars. // what does this do again
-    // char test;
+    char* pointer; // each pointer gets 10 chars. // what does this do again
+    char test;
 
-    // char cmd[32];
-    // if (argc == 2) {
-    //     FILE* mapfile;
-    //     if ( (mapfile = fopen(argv[1], "r")) ) {
-    //         end = feof(mapfile);
+    char cmd[32];
+    if (argc == 2) {
+        FILE* mapfile;
+        if ( (mapfile = fopen(argv[1], "r")) ) {
+            end = feof(mapfile);
             height = 10;
             width = 15;
-            // fscanf(mapfile, "h:%d w:%d b:{id:%d}\n", &height, &width, &base_tile_id);
-            // printf("scanned: height is %d, width is %d, base tile id is %d\n", height, width, base_tile_id);
+            fscanf(mapfile, "h:%d w:%d b:{id:%d}\n", &height, &width, &base_tile_id);
+            printf("scanned: height is %d, width is %d, base tile id is %d\n", height, width, base_tile_id);
             
 
             init_map(base_tile_id = 1);
 
-            for (y = 0; y < height; y++) {
-                for (x = 0; x < width; x++) {
-                    // this code has but likverified that initiliazer works
-                    printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
-                    printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
-                    printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
-                    printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
-                }
-            }
             printf("initialized map with given constraints.\n");
-            // while (!end) {
-            //     switch (which) {
-            //         case -1: // currently does not have a specific scan into data.
-            //             fgets(cmd, 16, mapfile);
-            //             if (*cmd != ']')
-            //                 printf("scanning for next command...\n");
-            //             switch (*cmd) {
-            //                 case 't':
-            //                     which = 0;
-            //                     printf("next command is |tiles|.\n");
-            //                     break;
-            //                 case 'i':
-            //                     which = 1;
-            //                     printf("next command is |items|.\n");
-            //                     break;
-            //                 case 's':
-            //                     which = 2;
-            //                     printf("next command is |special|.\n");
-            //                     break;
-            //                 case 'e':
-            //                     end = 1;
-            //                     printf("next command is |end|.\n");
-            //                     break;
-            //             }
-            //             break;
-            //         case 0: // currently scanning into tiles.
-            //             if (fscanf(mapfile,"{pos:%d;%d|id:%d}\n", &x, &y, &id)) {
-            //                 printf("changed tile at %d, %d to id:%d\n", x, y, id);
-            //                 //change_tile(x,y,id);
-            //             } else {
-            //                 which = -1;
-            //                 printf("tile input syntax broken; tile input has ended.\n");
-            //             }
-            //             break;
-            //         case 1:
-            //             if (fscanf(mapfile,"%d;%d:{",&x,&y)) {
-            //                 while(fscanf(mapfile,"%d",&id)) {
-            //                     //tiles(x,y).additem(id);
-            //                     if ( (test = fgetc(mapfile)) == '}') { // normally would be commas
-            //                         break;
-            //                     }
-            //                 }
-            //             } else {
-            //                 which = -1;
-            //                 printf("item input syntax broken; item input has ended.\n");
-            //             }
-            //             break;
-            //         case 2:
-            //             // i have no idea what to do for this, gg.
-            //             break;
-            //     }
+            while (!end) {
+                switch (which) {
+                    case -1: // currently does not have a specific scan into data.
+                        fgets(cmd, 16, mapfile);
+                        if (*cmd != ']')
+                            printf("scanning for next command...\n");
+                        switch (*cmd) {
+                            case 't':
+                                which = 0;
+                                printf("next command is |tiles|.\n");
+                                break;
+                            case 'i':
+                                which = 1;
+                                printf("next command is |items|.\n");
+                                break;
+                            case 's':
+                                which = 2;
+                                printf("next command is |special|.\n");
+                                break;
+                            case 'e':
+                                end = 1;
+                                printf("next command is |end|.\n");
+                                break;
+                        }
+                        break;
+                    case 0: // currently scanning into tiles.
+                        if (fscanf(mapfile,"{pos:%d;%d|id:%d}\n", &x, &y, &id)) {
+                            printf("changed tile at %d, %d to id:%d\n", x, y, id);
+                            change_tile(x,y,id);
+                        } else {
+                            which = -1;
+                            printf("tile input syntax broken; tile input has ended.\n");
+                        }
+                        break;
+                    case 1:
+                        if (fscanf(mapfile,"%d;%d:{",&x,&y)) {
+                            while(fscanf(mapfile,"%d",&id)) {
+                                //tiles(x,y).additem(id);
+                                if ( (test = fgetc(mapfile)) == '}') { // normally would be commas
+                                    break;
+                                }
+                            }
+                        } else {
+                            which = -1;
+                            printf("item input syntax broken; item input has ended.\n");
+                        }
+                        break;
+                    case 2:
+                        // i have no idea what to do for this, gg.
+                        break;
+                }
 
-            // }
-        // } else {
-        //     mapfile = fopen(argv[1], "w");
-        //     width = 20;
-        //     height = 15;
-        // }
+            }
+        } else {
+            mapfile = fopen(argv[1], "w");
+            width = 20;
+            height = 15;
+        }
 
-    // } else {
-    //     printf("./mapmaker <mapname>\n");
-    //     return -1;
-    // }
+    } else {
+        printf("./mapmaker <mapname>\n");
+        return -1;
+    }
 
-    // printf("ending...\n");
+    printf("ending...\n");
 
+    printf("--------------\n");
+    printf("drawing...\n");
 
-    // printf("--------------\n");
-    // printf("drawing...\n");
+    init();
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            update_tile(x,y,tiles(x,y).id);
+        }
+    }
+    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+        draw();
+        SDL_Flip(screen);
 
-    // init();
-    //while (running) {
-        // get_input();  
+    while (running) {
+        get_input();  
 
-        // update();
+        update();
 
         //draws the scene
 
         // SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-        draw();
+        // draw();
         // SDL_Flip(screen);
 
-        /* Sleep briefly to stop sucking up all the CPU time */
-       // SDL_Delay(16);
-    //}
-    // SDL_FreeSurface(screen);
-    /* Exit the program */
+         // Sleep briefly to stop sucking up all the CPU time 
+       SDL_Delay(16);
+    }
+    SDL_FreeSurface(screen);
+     // Exit the program 
     SDL_Quit();
     exit(0);
     return 0;
@@ -190,254 +189,133 @@ void update() {
 }
 
 void change_tile(int x, int y, int id) {
-    // // assumes the tile is in the middle of grid
-    // // note that the tiles are aligned; the 'id' is at the center of the tile.
+    // note that the tiles are aligned; the 'id' is at the center of the tile.
 
-    // tiles(x,y).id = id;
+    tiles(x,y).id = id;
 
-    // update_tile(x,y, id); // TODO: udpate neighbors
-    // update_tile(x+1,y, id); 
-    // update_tile(x,y+1, id); 
-    // update_tile(x-1,y, id); 
-    // update_tile(x,y-1, id); 
+    update_tile(x,y, id); // TODO: udpate neighbors
+    if (x<width) {
+        if (y<height) update_tile(x+1,y+1,tiles(x+1,y+1).id);
+        if (y>0) update_tile(x+1,y-1,tiles(x+1,y-1).id);    
+        update_tile(x+1,y  ,tiles(x+1,y  ).id);
+    } 
+    if (x>0) {
+        if (y<height) update_tile(x-1,y+1,tiles(x-1,y+1).id);
+        if (y>0) update_tile(x-1,y-1,tiles(x-1,y-1).id);
+        update_tile(x-1,y  ,tiles(x-1,y  ).id);
+    } 
+    if (y<height)update_tile(x  ,y+1,tiles(x  ,y+1).id);
+    if (y>0) update_tile(x  ,y-1,tiles(x  ,y-1).id);
+    update_tile(x  ,y  ,tiles(x  ,y  ).id);
+
 }
 
 void update_tile(int x, int y, int id) {
-    // // doesnt change id, just updates tile.
-    // int whichx = 0, whichy = 0; // which complete tile to take minitiles from
-    // int a, b, c; // is neighbor id equal to urs?
+    // doesnt change id, just updates tile.
+    int whichx = 0, whichy = 0; // which complete tile to take minitiles from
+    int a, b, c; // is neighbor id equal to urs?
+    if (id == 1) {
+        return;
+    }
 
-    // // Graphic* graphics[4] = {
-    // //     new Graphic(16, 16, 0, 0, id), // top left
-    // //     new Graphic(16, 16, 16, 0, id), // top right
-    // //     new Graphic(16, 16, 0, 16, id), // bottom left
-    // //     new Graphic(16, 16, 16, 16, id) // bottom right
-    // // };
-    // // tiles(x,y).graphic = graphics;
+    // note: this function needs to be shortened
+    Graphic insert;
 
+    // following a temp fix against seg-faulting for neighbors. Fix later.
+    if (x > 0 && y > 0) {// top left 
+        a = tiles(x-1,y).id == id; // left
+        b = tiles(x-1,y-1).id == id; // top left
+        c = tiles(x,y-1).id == id; // top
+        switch (a + b*2 + c*4) {
+            case 0: whichx = 8; whichy = 0; break;
+            case 1: whichx = 4; whichy = 0; break;
+            case 2: whichx = 8; whichy = 0; break;
+            case 3: whichx = 4; whichy = 0; break;
+            case 4: whichx = 6; whichy = 0; break; 
+            case 5: whichx = 2; whichy = 0; break;
+            case 6: whichx = 6; whichy = 0; break;
+            case 7: whichx = 0; whichy = 0; break;
+        }
+        insert = new Graphic(16, 16, whichx*16, whichy*16, id);
+        tiles(x,y).graphic.at(0) = (insert); // shoud just modify.. but w.e
+    }
 
-    // // note: make these switch cases into some kind of arrays.
-    // // Come on victor! You know how to shorten code.
+    if (x < width && y > 0) {// top right
+        a = tiles(x,y-1).id == id; // top
+        b = tiles(x+1,y-1).id == id; // top right
+        c = tiles(x+1,y).id == id; // right
+        switch (a + b*2 + c*4) {
+            case 0: whichx = 9; whichy = 0; break;
+            case 1: whichx = 7; whichy = 0; break;
+            case 2: whichx = 9; whichy = 0; break;
+            case 3: whichx = 7; whichy = 0; break;
+            case 4: whichx = 5; whichy = 0; break;
+            case 5: whichx = 3; whichy = 0; break;
+            case 6: whichx = 5; whichy = 0; break;
+            case 7: whichx = 1; whichy = 0; break;
+        }
+        insert = new Graphic(16, 16, whichx*16, whichy*16, id);
+        tiles(x,y).graphic.at(1) = (insert); // shoud just modify.. but w.e
+    }
 
-    // Graphic graphics[4] = {
-    //     *new Graphic(16, 16, 0, 0, id),
-    //     *new Graphic(16, 16, 0, 0, id),
-    //     *new Graphic(16, 16, 0, 0, id),
-    //     *new Graphic(16, 16, 0, 0, id)
-    // };
+    if (x > 0 && y < height) {// bottom left
+        a = tiles(x,y+1).id == id; // bottom
+        b = tiles(x-1,y+1).id == id; // bottom left
+        c = tiles(x-1,y).id == id; // left
+        switch (a + b*2 + c*4) {
+            case 0: whichx = 8; whichy = 1; break;
+            case 1: whichx = 6; whichy = 1; break;
+            case 2: whichx = 8; whichy = 1; break;
+            case 3: whichx = 6; whichy = 1; break;
+            case 4: whichx = 4; whichy = 1; break;
+            case 5: whichx = 2; whichy = 1; break;
+            case 6: whichx = 4; whichy = 1; break;
+            case 7: whichx = 0; whichy = 1; break;
+        }
+        insert = new Graphic(16, 16, whichx*16, whichy*16, id);
+        tiles(x,y).graphic.at(2) = (insert); // shoud just modify.. but w.e
+    }
 
-
-
-    // // top left 
-    // a = tiles(x-1,y).id == id; // left
-    // b = tiles(x-1,y-1).id == id; // top left
-    // c = tiles(x,y-1).id == id; // top
-
-
-    // switch (a + b*2 + c*4) {
-    //     case 0: // none
-    //         whichx = 8;
-    //         whichy = 0;
-    //         break;
-    //     case 1: // left
-    //         whichx = 4;
-    //         whichy = 0;
-    //         break;
-    //     case 2: // top left == none
-    //         whichx = 8;
-    //         whichy = 0;
-    //         break;
-    //     case 3: // top left, left == left
-    //         whichx = 4;
-    //         whichy = 0;
-    //         break;
-    //     case 4: // top 
-    //         whichx = 6;
-    //         whichy = 0;
-    //         break; 
-    //     case 5: // top, left
-    //         whichx = 2;
-    //         whichy = 0;
-    //         break;
-    //     case 6: // top, top left == top
-    //         whichx = 6;
-    //         whichy = 0;
-    //         break;
-    //     case 7: // top, top left, left
-    //         whichx = 0;
-    //         whichy = 0;
-    //         break;
-    // }
-    // graphics[0] = *new Graphic(16, 16, 0/*whichx*16*/, 0/*whichy*16*/, id); // shoud just modify.. but w.e
-
-    // // top right
-    // a = tiles(x,y-1).id == id; // top
-    // b = tiles(x+1,y-1).id == id; // top right
-    // c = tiles(x+1,y).id == id; // right
-
-    // switch (a + b*2 + c*4) {
-    //     case 0: // none
-    //         whichx = 9;
-    //         whichy = 0;
-    //         break;
-    //     case 1: // top
-    //         whichx = 5;
-    //         whichy = 0;
-    //         break;
-    //     case 2: // top right
-    //         whichx = 9;
-    //         whichy = 0;
-    //         break;
-    //     case 3: // top, top right
-    //         whichx = 5;
-    //         whichy = 0;
-    //         break;
-    //     case 4: // right
-    //         whichx = 7;
-    //         whichy = 0;
-    //         break;
-    //     case 5: // top, right
-    //         whichx = 3;
-    //         whichy = 0;
-    //         break;
-    //     case 6: // top right, right
-    //         whichx = 7;
-    //         whichy = 0;
-    //         break;
-    //     case 7: // right, top right, top
-    //         whichx = 1;
-    //         whichy = 0;
-    //         break;
-    // }
-
-    // graphics[1] = *new Graphic(16, 16, 0/*whichx*16*/, 0/*whichy*16*/, id);
-
-
-
-
-    // // bottom left
-    // a = tiles(x,y+1).id == id; // bottom
-    // b = tiles(x-1,y+1).id == id; // bottom left
-    // c = tiles(x-1,y).id == id; // left
-
-    // switch (a + b*2 + c*4) {
-    //     case 0: // none
-    //         whichx = 8;
-    //         whichy = 1;
-    //         break;
-    //     case 1: // bottom left
-    //         whichx = 4;
-    //         whichy = 1;
-    //         break;
-    //     case 2: // left
-    //         whichx = 8;
-    //         whichy = 1;
-    //         break;
-    //     case 3: // bottom left, bottom
-    //         whichx = 4;
-    //         whichy = 1;
-    //         break;
-    //     case 4: // left
-    //         whichx = 6;
-    //         whichy = 1;
-    //         break;
-    //     case 5: // bottom, left
-    //         whichx = 2;
-    //         whichy = 1;
-    //         break;
-    //     case 6: // bottom left, left
-    //         whichx = 6;
-    //         whichy = 1;
-    //         break;
-    //     case 7: // bottom, bottom left, left
-    //         whichx = 0;
-    //         whichy = 1;
-    //         break;
-    // }
-
-    // graphics[2] = *new Graphic(16, 16, 0/*whichx*16*/, 0/*whichy*16*/, id);
-
-
-
-    // // bottom right
-    // a = tiles(x+1,y).id == id; // right
-    // b = tiles(x+1,y-1).id == id; // bottom right
-    // c = tiles(x,y-1).id == id; // bottom
-
-    // switch (a + b*2 + c*4) {
-    //     case 0: // none
-    //         whichx = 9;
-    //         whichy = 1;
-    //         break;
-    //     case 1: // right
-    //         whichx = 5;
-    //         whichy = 1;
-    //         break;
-    //     case 2: // bottom right
-    //         whichx = 9;
-    //         whichy = 1;
-    //         break;
-    //     case 3: // right, bottom right
-    //         whichx = 5;
-    //         whichy = 1;
-    //         break;
-    //     case 4: // bottom
-    //         whichx = 7;
-    //         whichy = 1;
-    //         break;
-    //     case 5: // bottom, right
-    //         whichx = 3;
-    //         whichy = 1;
-    //         break;
-    //     case 6: // bottom right, bottom
-    //         whichx = 7;
-    //         whichy = 1;
-    //         break;
-    //     case 7: // right, bottom right, bottom
-    //         whichx = 1;
-    //         whichy = 1;
-    //         break;
-    // }
-
-    // graphics[3] = *new Graphic(16, 16, 0/*whichx*16*/, 0/*whichy*16*/, id);
-
-    // tiles(x,y) = *new Tile(id, x, y, graphics);
-
-
+    if (x < width && y < height) {// bottom right
+        a = tiles(x+1,y).id == id; // right
+        b = tiles(x+1,y+1).id == id; // bottom right
+        c = tiles(x,y+1).id == id; // bottom
+        switch (a + b*2 + c*4) {
+            case 0: whichx = 9; whichy = 1; break;
+            case 1: whichx = 5; whichy = 1; break;
+            case 2: whichx = 9; whichy = 1; break;
+            case 3: whichx = 5; whichy = 1; break;
+            case 4: whichx = 7; whichy = 1; break;
+            case 5: whichx = 3; whichy = 1; break;
+            case 6: whichx = 7; whichy = 1; break;
+            case 7: whichx = 1; whichy = 1; break;
+        }
+        insert = new Graphic(16, 16, whichx*16, whichy*16, id);
+        tiles(x,y).graphic.at(3) = (insert); // shoud just modify.. but w.e
+    }
 }
 
 void draw() {
     int dx = 0, dy = 0;
-    // height = 10;
-    // width = 15;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             dx = x * 32;
             dy = y * 32;
-            // printf("%d, %d\n", x, y);
 
 
-            printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
-            printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
-            printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
-            printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
 
-
-            // printf("%d:", tiles(x,y).id);
-            //drawSprite(sprite[tiles(x,y).id]/*tiles(x,y).graphic[0].image*/,screen,/*tiles(x,y).graphic[0].srcx*/0,/*tiles(x,y).graphic[0].srcy*/0,dx,dy,/*tiles(x,y).graphic[0].height*/32,32/*tiles(x,y).graphic[0].width*/);
-            // drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[0].srcx, tiles(x,y).graphic[0].srcy, dx   , dy   , 16, 16);
-            // printf("0>%d.%d,", tiles(x,y).graphic[0].srcx, tiles(x,y).graphic[0].srcy);// something wrong with this
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[0].srcx, tiles(x,y).graphic[0].srcy, dx   , dy   , 16, 16);
+            printf("0>%d.%d,", tiles(x,y).graphic.at(0).srcx, tiles(x,y).graphic.at(0).srcy);// something wrong with this
             
-            // drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[1].srcx, tiles(x,y).graphic[1].srcy, dx+16, dy   , 16, 16);
-            // printf("1>%d.%d,", tiles(x,y).graphic[1].srcx, tiles(x,y).graphic[1].srcy); // and this
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[1].srcx, tiles(x,y).graphic[1].srcy, dx+16, dy   , 16, 16);
+            printf("1>%d.%d,", tiles(x,y).graphic.at(1).srcx, tiles(x,y).graphic.at(1).srcy); // and this
             
-            // drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[2].srcx, tiles(x,y).graphic[2].srcy, dx   , dy+16, 16, 16);
-            // printf("2>%d.%d,", tiles(x,y).graphic[2].srcx, tiles(x,y).graphic[2].srcy);
-            
-            // drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[3].srcx, tiles(x,y).graphic[3].srcy, dx+16, dy+16, 16, 16);
-            // printf("3>%d.%d   \n", tiles(x,y).graphic[3].srcx, tiles(x,y).graphic[3].srcy);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[2].srcx, tiles(x,y).graphic[2].srcy, dx   , dy+16, 16, 16);
+            printf("2>%d.%d,", tiles(x,y).graphic.at(2).srcx, tiles(x,y).graphic.at(2).srcy);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[3].srcx, tiles(x,y).graphic[3].srcy, dx+16, dy+16, 16, 16);
+            printf("3>%d.%d   \n", tiles(x,y).graphic.at(3).srcx, tiles(x,y).graphic.at(3).srcy);
         }
-        //printf("\n");
+        // printf("\n");
     }
 }
 
@@ -447,44 +325,31 @@ void draw() {
 
 void init_map(int id) {
     int x, y;
-    height = 10;
-    width = 15;
-    tiles.resize(height * width);
-    printf("tiles should be initilaized\n");
-
+    printf("should resize to this size: %d\n", height*width);
+    tiles.resize(height*width);
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            // // this should be unnecesdsry
+
             // if (x > 0 && x < width - 1 && y > 0 && y < height - 1) {
             //     update_tile(x,y,id);
             // }
 
-            std::vector<Graphic> graphics (4);
+            std::vector<Graphic> graphics;
+            Graphic* test1 = new Graphic(16, 16, 0, 0, id);
+            Graphic* test2 = new Graphic(16, 16, 16, 0, id);
+            Graphic* test3 = new Graphic(16, 16, 0, 16, id);
+            Graphic* test4 = new Graphic(16, 16, 16, 16, id);
 
-            graphics[0] = new Graphic(16, 16, 0, 0, id);
-            graphics[1] = new Graphic(16, 16, 0, 0, id);
-            graphics[2] = new Graphic(16, 16, 0, 0, id);
-            graphics[3] = new Graphic(16, 16, 0, 0, id);
+            graphics.push_back(*test1);
+            graphics.push_back(*test2);
+            graphics.push_back(*test3);
+            graphics.push_back(*test4);
 
-            tiles(x,y) = *new Tile(id, x, y, graphics); // weird large number shud be id
-
-            // this code has verified that initiliazer works
-            printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
-            printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
-            printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
-            printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
+            Tile insert(id,x,y,graphics);
+            tiles(x,y) = (insert); 
         }
     }
-
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            // this code has verified that initiliazer works
-            printf("0>%d,%d: ",tiles(x,y).graphic[0].srcx,tiles(x,y).graphic[0].srcy);
-            printf("1>%d,%d: ",tiles(x,y).graphic[1].srcx,tiles(x,y).graphic[1].srcy);
-            printf("2>%d,%d: ",tiles(x,y).graphic[2].srcx,tiles(x,y).graphic[2].srcy);
-            printf("3>%d,%d: \n",tiles(x,y).graphic[3].srcx,tiles(x,y).graphic[3].srcy);
-        }
-    }
+    printf("tiles shud be inited\n");
 }
 
 char* data_to_string() {
