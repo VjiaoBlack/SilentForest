@@ -1,12 +1,15 @@
 #include "SDL/SDL.h"
 #include "id.h"
 
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <map>
 #include <list>
 #include <vector>
 #include <iostream>
+#include <string>
+#include <fstream>
 
 
 using namespace std;
@@ -45,11 +48,6 @@ Graphic::Graphic() {
 }
 
 
-
-
-
-
-
 // Object class #################################
 class Object {
 public:
@@ -57,6 +55,7 @@ public:
     Graphic* graphic;
     Object(int, Graphic*);
     Object(int);
+    Object();
 };
 
 Object::Object(int identifier, Graphic* graphicpointer) {
@@ -70,13 +69,10 @@ Object::Object(int identifier) {
     graphic = NULL;
 }
 
-
-
-
-
-
-
-
+Object::Object() {
+    id = 0;
+    graphic = NULL;
+}
 
 // Tile class ###################################
 class Tile {
@@ -85,6 +81,7 @@ public:
     int gridx, gridy;
     std::vector<Graphic> graphic;
     std::list<Object> objects;
+    std::map<std::string,std::string> specials;
 
     Tile(int, int, int, std::vector<Graphic>);
     Tile(int,int,int);
@@ -111,6 +108,7 @@ Tile::Tile(int identifier, int gridxcor, int gridycor, std::vector<Graphic> grap
     gridx = gridxcor;
     gridy = gridycor;
     graphic = graphicpointer;
+    objects.resize(0);
 }
 
 Tile::Tile(int ident, int grdx, int grdy) {
@@ -118,6 +116,7 @@ Tile::Tile(int ident, int grdx, int grdy) {
     gridx = grdx;
     gridy = grdy;
     graphic.resize(4);
+    objects.resize(0);
 }
 
 Tile::Tile() {
@@ -125,22 +124,42 @@ Tile::Tile() {
     gridx = 0;
     gridy = 0;
     graphic.resize(4);
+    objects.resize(0);
 }
+
+typedef struct letter_t {
+    int width;
+    int xpos;
+    int ypos;
+} letter_t;
+
 std::vector<Tile> tiles;
 
 int width;
 int height;
 int base_tile_id;
+int draw_id;
+int selectedx;
+int selectedy;
 
 SDL_Surface* screen;
 SDL_Surface* grass;
 SDL_Surface* water; // these should be in an array, with id as the identifier.
+SDL_Surface* font;
 
 std::map<int,SDL_Surface*> sprite;
+std::map<char,letter_t> letter_data;
 
 int running;
 
 bool keysHeld[323] = {false};
+int mousex;
+int mousey;
+bool mouseleftdown;
+
+int xoffset;
+int yoffset;
+
 
 void init_map(int);
 void update();
@@ -150,3 +169,8 @@ void get_input();
 void change_tile(int,int,int);
 void update_tile(int,int,int);
 void drawSprite(SDL_Surface*, SDL_Surface*, int, int, int, int, int, int);
+std::string parse_tile(Tile*);
+std::string data_to_string();
+void drawText(char*, int, int);
+int drawLetter(char, int, int);
+void edit_objects(int,int);
