@@ -8,7 +8,6 @@
 #include <list>
 #include <vector>
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <string>
 
@@ -17,6 +16,9 @@ using namespace std;
 
 #define tiles(x,y) tiles.at((y)*width + (x))
 
+
+
+std::map<char,letter_t> letter_data;
 
 
 

@@ -583,7 +583,7 @@ void edit_objects(int grx, int gry) {
 
     } else {
         drawText("no items", 570, 650);
-        printf("no items\n");
+        // printf("no items\n");
     }
 }
 
