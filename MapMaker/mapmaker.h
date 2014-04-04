@@ -10,11 +10,27 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <string>
 
 
 using namespace std;
 
 #define tiles(x,y) tiles.at((y)*width + (x))
+
+
+
+
+static SDL_Surface* font;
+static SDL_Surface* screen;
+
+
+void drawText(char*, int, int);
+int drawLetter(char, int, int);
+void drawSprite(SDL_Surface*, SDL_Surface*, int, int, int, int, int, int);
+
+
+
+
 
 // Graphic class ################################
 class Graphic {
@@ -38,6 +54,7 @@ Graphic::Graphic(int h, int w, int sx, int sy, int id) {
     width = w;
     srcx = sx;
     srcy = sy; 
+    height += 0 * id; // suppresses warnings
 }
 
 Graphic::Graphic() {
@@ -127,12 +144,6 @@ Tile::Tile() {
     objects.resize(0);
 }
 
-typedef struct letter_t {
-    int width;
-    int xpos;
-    int ypos;
-} letter_t;
-
 std::vector<Tile> tiles;
 
 int width;
@@ -142,19 +153,17 @@ int draw_id;
 int selectedx;
 int selectedy;
 
-SDL_Surface* screen;
 SDL_Surface* grass;
 SDL_Surface* water; // these should be in an array, with id as the identifier.
-SDL_Surface* font;
 
 std::map<int,SDL_Surface*> sprite;
-std::map<char,letter_t> letter_data;
 
 int running;
 
 bool keysHeld[323] = {false};
 int mousex;
 int mousey;
+int which_disp; // 0 is items, 1 is specials
 bool mouseleftdown;
 
 int xoffset;
@@ -168,9 +177,9 @@ void draw();
 void get_input();
 void change_tile(int,int,int);
 void update_tile(int,int,int);
-void drawSprite(SDL_Surface*, SDL_Surface*, int, int, int, int, int, int);
 std::string parse_tile(Tile*);
 std::string data_to_string();
-void drawText(char*, int, int);
-int drawLetter(char, int, int);
 void edit_objects(int,int);
+void edit_specials(int,int);
+void put_special(int, int, std::string, std::string);
+

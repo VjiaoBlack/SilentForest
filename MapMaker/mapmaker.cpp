@@ -1,5 +1,7 @@
+#include "font.h"
 
 #include "mapmaker.h"
+
 
 // code starts ##################################
 
@@ -8,12 +10,10 @@ int main(int argc, char* argv[]) {
     int which = -1; // -1 is uninitialized, 0 is tiles, 1 is items, 2 is special
     int end = 0;
     int x, y, id;
+    int i = 0;
     // char* pointer; // each pointer gets 10 chars. // what does this do again
     char test;
     FILE* mapfile;
-
-    char* tag = (char*) malloc(sizeof(char) * 16);
-    char* content = (char*) malloc(sizeof(char) * 16);
 
     char cmd[32];
     if (argc == 2) {
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
             init_map(base_tile_id = 1);
 
             printf("initialized map with given constraints.\n");
-            while (!end) {
+            while (!end) { // reads line by line ish
                 end = feof(mapfile);
                 switch (which) {
                     case -1: // currently seeing what to scan into
@@ -76,15 +76,36 @@ int main(int argc, char* argv[]) {
                         }
                         break;
                     case 2: // the special
-                        // refer to the google doc!!!!!
-                        if (fscanf(mapfile,"%d:%d{", &x, &y)) {
+                        if (fscanf(mapfile,"%d;%d{", &x, &y)) {
                             printf("found tile %d, %d to have special\n", x, y);
-                            while(fscanf(mapfile,"%s:%s,",tag,content)) {
-                                tiles(x,y).specials[tag] = content;
+                            test = 'a';
+                            int a = 1; // simple toggle to fix reading in {} / cursor seeking error
+                            std::string tag;
+                            std::string content;
+                            while(test != '}' && (test = fgetc(mapfile)) != '}' ) {
+
+                                if (a == 1)
+                                    fseek(mapfile, 1, SEEK_CUR);
+                                if (a == 0)
+                                    fseek(mapfile, -1, SEEK_CUR);
+                                a = 0;
+                                i = 0;
+                                while ( (test = fgetc(mapfile)) != ':') {
+                                    tag[i++] = test;
+                                }
+                                tag[i] = '\0';
+                                i = 0;
+                                while ( (test = fgetc(mapfile)) != ',' && test != '}') {
+                                    content[i++] = test;
+                                }
+                                content[i] = '\0';
+                                i = 0;
+                                printf("putting tag and content into the specials map...\n");
+
+                                put_special(x,y,tag,content);
+                    
                             }
-                            if (fscanf(mapfile,"%s:%s", tag, content)) {
-                                tiles(x,y).specials[tag] = content;
-                            }
+                            
                             which = -1;
                             printf("special input syntax broken; special input has ended.\n");
                         }   
@@ -133,11 +154,23 @@ int main(int argc, char* argv[]) {
                 drawSprite(sprite[tiles(x,y).id], screen, 0, 0, 100+x*4, 650+y*4, 4, 4);
             }
         }
-        if (selectedx > -1 && selectedy > -1) {
-            edit_objects(selectedx, selectedy);
+        if (selectedx > -1 && selectedy > -1) { // > -1 is intended to check for is_init !!!!
+            switch (which_disp) {
+                case 0: 
+                    edit_objects(selectedx, selectedy);
+                    break;
+                case 1:
+                    edit_specials(selectedx, selectedy);
+                    break;
+                default: 
+                    break;   
+            }
         }
+
         if (keysHeld[SDLK_o])
-            drawText("selecting", 280, 690);
+            drawText("object", 280, 690);
+        if (keysHeld[SDLK_s])
+            drawText("specials", 280, 690);
         SDL_Flip(screen);
 
          // Sleep briefly to stop sucking up all the CPU time 
@@ -147,17 +180,6 @@ int main(int argc, char* argv[]) {
      // Exit the program 
     if (mapfile)
         fclose(mapfile);
-    // mapfile = fopen(argv[1], "w");
-    // printf("yayyy\n");
-    // char* tofile = (char*) malloc(sizeof(char) * sizeof(data_to_string()));
-    // sprintf(tofile, "%s", data_to_string());
-    // fwrite(tofile, sizeof(char), sizeof(tofile), mapfile);
-    // printf("%s\n", tofile);
-    // free(tofile);
-    // printf("whoo\n");
-    // fflush(mapfile);
-    // fclose(mapfile);
-
     
     std::string tofile;
     tofile = data_to_string();
@@ -171,13 +193,12 @@ int main(int argc, char* argv[]) {
 }
 
 void load_graphics() {
-    // somehow put input graphics data here! yay! wow! smart!!!
-    // note how most of this is currently in main().
-
+    sprite[1] = grass;
+    sprite[2] = water;
 }
 
 void init() {
-
+    which_disp = -1;
     selectedx = -1;
     selectedy = -1;
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -189,78 +210,12 @@ void init() {
     screen = SDL_SetVideoMode( 1280, 800, 0, SDL_HWSURFACE | SDL_DOUBLEBUF );
     grass = SDL_LoadBMP("grass.bmp");
     water = SDL_LoadBMP("water.bmp");
-    font = SDL_LoadBMP("letters.bmp");
-
+        font = SDL_LoadBMP("letters.bmp");
     SDL_SetColorKey( font, SDL_SRCCOLORKEY, SDL_MapRGB(font->format, 255, 0, 255) );
 
+    init_font();
 
-
-    letter_data['A'] = (letter_t) {16, 0, 0}; //sadface all this hardcoding
-    char counter;
-    int i = 0;
-    for (counter = 'A'; counter < 'I'; counter++) {
-        letter_data[counter] = (letter_t) {16, 20*(counter - 'A'), 0};
-    }
-    letter_data['I'] = (letter_t) {12, 160, 0};
-    for (counter = 'J'; counter < 'M'; counter++) {
-        letter_data[counter] = (letter_t) {16, 20*(counter - 'A') - 4, 0};
-    }
-    letter_data['M'] = (letter_t) {20, 260, 0};
-    for (counter = 'N'; counter < 'T'; counter++) {
-        letter_data[counter] = (letter_t) {16, 20*(counter - 'A'), 0};
-    }
-    letter_data['T'] = (letter_t) {20, 380, 0};
-    letter_data['U'] = (letter_t) {16, 404, 0};
-    letter_data['V'] = (letter_t) {20, 420, 0};
-    letter_data['W'] = (letter_t) {20, 448, 0};
-    letter_data['X'] = (letter_t) {16, 460, 0};
-    letter_data['Y'] = (letter_t) {20, 480, 0};
-    letter_data['Z'] = (letter_t) {16, 500, 0};
-
-    letter_data['a'] = (letter_t) {16, 0, 32};
-    for (counter = 'b'; counter < 'i'; counter++) {
-        letter_data[counter] = (letter_t) {12, 16*(counter-'a')+4, 32};
-    }
-    letter_data['i'] = (letter_t) {4, 16*('i'-'a') + 4, 32};
-    letter_data['j'] = (letter_t) {8, 16*('j'-'a') - 4, 32};
-    letter_data['k'] = (letter_t) {12, 16*('k'-'a') - 8, 32};
-    letter_data['l'] = (letter_t) {4, 16*('l'-'a') - 8, 32}; //next is - 20
-    letter_data['m'] = (letter_t) {20, 16*('m'-'a') - 16, 32}; //next is - 12
-    letter_data['n'] = (letter_t) {12, 16*('n'-'a') - 8, 32};
-    letter_data['o'] = (letter_t) {12, 16*('o'-'a') - 8, 32};
-    letter_data['p'] = (letter_t) {12, 16*('p'-'a') - 8, 32};
-    letter_data['q'] = (letter_t) {16, 16*('q'-'a') - 8, 32}; 
-    letter_data['r'] = (letter_t) {12, 16*('r'-'a') - 4, 32}; 
-    letter_data['s'] = (letter_t) {12, 16*('s'-'a') - 4, 32}; 
-    letter_data['t'] = (letter_t) {12, 16*('t'-'a') - 4, 32};
-    letter_data['u'] = (letter_t) {16, 16*('u'-'a') - 4, 32};
-    letter_data['v'] = (letter_t) {12, 16*('v'-'a') - 0, 32};
-    letter_data['w'] = (letter_t) {20, 16*('w'-'a') - 0, 32};
-    letter_data['x'] = (letter_t) {12, 16*('x'-'a') + 8, 32}; 
-    letter_data['y'] = (letter_t) {12, 16*('y'-'a') + 8, 32}; 
-    letter_data['z'] = (letter_t) {12, 16*('z'-'a') + 8, 32};
-
-    letter_data['0'] = (letter_t) {16,16*(0),64};
-    letter_data['1'] = (letter_t) {12,16*(1)+4,64};
-    letter_data['2'] = (letter_t) {16,16*(2)+4,64};
-    letter_data['3'] = (letter_t) {16,16*(3)+8,64};
-    letter_data['4'] = (letter_t) {12,16*(4)+12,64};
-    letter_data['5'] = (letter_t) {12,16*(5)+12,64};
-    letter_data['6'] = (letter_t) {12,16*(6)+12,64};
-    letter_data['7'] = (letter_t) {12,16*(7)+12,64};
-    letter_data['8'] = (letter_t) {16,16*(8)+12,64};
-    letter_data['9'] = (letter_t) {16,16*(9)+16,64};
-
-    letter_data[' '] = (letter_t) {12, 540, 0};
-    letter_data['!'] = (letter_t) {4, 176, 64};
-    letter_data['?'] = (letter_t) {16, 184, 64};
-    letter_data['.'] = (letter_t) {4, 204, 64};
-    letter_data[','] = (letter_t) {8, 212, 64};
-
-    letter_data['>'] = (letter_t) {8, 468, 32};
-
-    sprite[1] = grass;
-    sprite[2] = water;
+    load_graphics();
 
     if (screen == NULL) {
         printf("Couldn't set screen mode to 640 x 480: %s\n", SDL_GetError());
@@ -347,13 +302,17 @@ void update() {
             xoffset-=3;
     }
     if (mouseleftdown && mousex > xoffset && mousey > yoffset && mousex < width*32 && mousey < height*32) {
-        if (keysHeld[SDLK_o]) {
+        if (keysHeld[SDLK_o] || keysHeld[SDLK_s]) {
             selectedx = (mousex-xoffset)/32; 
             selectedy = (mousey-yoffset)/32;
         }
         else if (tiles((mousex-xoffset)/32,(mousey-yoffset)/32).id != draw_id)
             change_tile((mousex-xoffset)/32, (mousey-yoffset)/32, draw_id);
     }
+    if (keysHeld[SDLK_o]) 
+        which_disp = 0;
+    if (keysHeld[SDLK_s])
+        which_disp = 1;
 }
 
 void change_tile(int x, int y, int id) {
@@ -396,8 +355,6 @@ void update_tile(int x, int y, int id) {
 
         return;
     }
-
-    // note: this function needs to be shortened
 
     // following a temp fix against seg-faulting for neighbors. Fix later.
     if (x > 0 && y > 0) {// top left 
@@ -483,17 +440,10 @@ void draw() {
 
 
             drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[0].srcx, tiles(x,y).graphic[0].srcy, dx   +xoffset, dy   +yoffset, 16, 16);
-            // printf("0>%d.%d,", tiles(x,y).graphic.at(0).srcx, tiles(x,y).graphic.at(0).srcy);// something wrong with this
-            
             drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[1].srcx, tiles(x,y).graphic[1].srcy, dx+16+xoffset, dy   +yoffset, 16, 16);
-            // printf("1>%d.%d,", tiles(x,y).graphic.at(1).srcx, tiles(x,y).graphic.at(1).srcy); // and this
-            
             drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[2].srcx, tiles(x,y).graphic[2].srcy, dx   +xoffset, dy+16+yoffset, 16, 16);
-            // printf("2>%d.%d,", tiles(x,y).graphic.at(2).srcx, tiles(x,y).graphic.at(2).srcy);
             drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic[3].srcx, tiles(x,y).graphic[3].srcy, dx+16+xoffset, dy+16+yoffset, 16, 16);
-            // printf("3>%d.%d   \n", tiles(x,y).graphic.at(3).srcx, tiles(x,y).graphic.at(3).srcy);
         }
-        // printf("\n");
     }
 }
 
@@ -526,6 +476,26 @@ std::string parse_item(Tile tile) {
     return output;
 }
 
+std::string parse_special(Tile tile) {
+    std::string output;
+    char* special = (char*) malloc(sizeof(char) * 16);
+    char* tostring = (char*) malloc(sizeof(char) * 64);
+    sprintf(tostring,"%d;%d:{", tile.gridx, tile.gridy);
+    output.append(tostring);
+    std::map<std::string,std::string>::iterator it = tile.specials.begin();
+    while (it != tile.specials.end()) {
+        sprintf(special,"%s:%s", it->first.c_str(), it->second.c_str());
+        output.append(special);
+        if (++it != tile.specials.end()) {
+            output.append(",");
+        }
+    }
+    output.append("}");
+    free(tostring);
+    free(special);
+    return output;
+}
+
 void init_map(int id) {
     int x, y;
     draw_id = 1;
@@ -535,10 +505,6 @@ void init_map(int id) {
     tiles.resize(height*width);
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-
-            // if (x > 0 && x < width - 1 && y > 0 && y < height - 1) {
-            //     update_tile(x,y,id);
-            // }
 
             std::vector<Graphic> graphics;
             Graphic* test1 = new Graphic(16, 16, 0, 0, id);
@@ -560,7 +526,7 @@ void init_map(int id) {
 
 std::string data_to_string() {
     char* tostring = (char*) malloc(sizeof(char) * 64);
-    sprintf(tostring,"h:%d w:%d b:{id:%d}\n", height, width, base_tile_id); // error!!
+    sprintf(tostring,"h:%d w:%d b:{id:%d}\n", height, width, base_tile_id); 
 
     std::string output;
     output.append(tostring);
@@ -583,24 +549,87 @@ std::string data_to_string() {
             }
         }
     }
+    output.append("]\n");
+    output.append("specials[\n");
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            if (tiles(x,y).specials.size() > 0) {
+                output.append(parse_special(tiles(x,y)));
+                output.append("\n");
+            }
+        }
+    }
     output.append("]\nend");
     return output;
 }
 
-void drawSprite(SDL_Surface* imageSurface, SDL_Surface* screenSurface,int sx, int sy, int dx, int dy,int w, int h) {
-   SDL_Rect srcRect;
-   srcRect.x = sx;
-   srcRect.y = sy;
-   srcRect.w = w;
-   srcRect.h = h;
+void edit_objects(int grx, int gry) {
+    char* buffer = (char*) malloc(sizeof(char) * 32);
+    sprintf(buffer, "Editing Tile at %d, %d.", grx, gry);
+    drawText(buffer, 200, 650);
 
-   SDL_Rect dstRect;
-   dstRect.x = dx;
-   dstRect.y = dy;
-   dstRect.w = w;
-   dstRect.h = h;
+    char* idbuf = (char*) malloc(sizeof(char) * 8);
+    int x = 570, y = 650;
+    // print out all the objects here
+    if (tiles(grx,gry).objects.size() > 0) {
+        for (std::list<Object>::iterator it=tiles(grx,gry).objects.begin(); it != tiles(grx,gry).objects.end(); ++it) {
+            sprintf(idbuf, "%d", it->id);
+            drawText(idbuf, x, y);
+            y+= 32;
+            if (y > 770) {
+                x += 80;
+            }
+        }
 
-   SDL_BlitSurface(imageSurface, &srcRect, screenSurface, &dstRect);
+    } else {
+        drawText("no items", 570, 650);
+        printf("no items\n");
+    }
+}
+
+void edit_specials(int grx, int gry) {
+    char* buffer = (char*) malloc(sizeof(char) * 32);
+    sprintf(buffer, "Editing Tile at %d, %d.", grx, gry);
+    drawText(buffer, 200, 650);
+
+    char* idbuf = (char*) malloc(sizeof(char) * 8);
+    int x = 600, y = 650;
+
+    // print out all the specials here
+    if (tiles(grx,gry).specials.size() > 0) {
+        for (std::map<std::string,std::string>::iterator it=tiles(grx,gry).specials.begin(); it != tiles(grx,gry).specials.end(); ++it) {
+            sprintf(idbuf, "%s>%s", it->first.c_str(), it->second.c_str());
+            drawText(idbuf, x, y);
+            y+= 32;
+            if (y > 770) {
+                x += 80;
+            }
+        }
+
+    } else {
+        drawText("no specials", 560, 650);
+    }
+}
+
+void put_special(int grx, int gry, std::string tag, std::string content) {
+    std::string tagc;
+    std::string contentc;
+
+    char* tagcp = (char*) malloc(sizeof(char) * (tag.size()+1));
+    char* contentcp = (char*) malloc(sizeof(char) * (content.size() +1));
+
+    strcpy(tagcp,tag.c_str());
+    strcpy(contentcp,content.c_str());
+
+    printf("  %s:%s\n", tagcp, contentcp);
+
+
+    tagc.assign(tagcp);
+    contentc.assign(contentcp);
+
+    tiles(grx,gry).specials.insert(std::pair<std::string,std::string>(tagc,contentc));
+    printf("put %s:%s into tiles(%d,%d)\n", tagc.c_str(), contentc.c_str(), grx,gry);
+
 }
 
 void drawText(char* input, int x, int y) {
@@ -622,35 +651,23 @@ int drawLetter(char letter, int x, int y) { // returns letter width
         x, y,
         letter_data[letter].width, 32);
     width = letter_data[letter].width;
-
     return width;
 }
 
-void edit_objects(int grx, int gry) {
-    char* buffer = (char*) malloc(sizeof(char) * 32);
-    sprintf(buffer, "Editing Tile at %d, %d.", grx, gry);
-    drawText(buffer, 200, 650);
+void drawSprite(SDL_Surface* imageSurface, SDL_Surface* screenSurface,int sx, int sy, int dx, int dy,int w, int h) {
+   SDL_Rect srcRect;
+   srcRect.x = sx;
+   srcRect.y = sy;
+   srcRect.w = w;
+   srcRect.h = h;
 
-    char* idbuf = (char*) malloc(sizeof(char) * 8);
-    int x = 570, y = 650;
-    // print out all the objects here
-    // object.id
-    if (tiles(grx,gry).objects.size() > 0) {
-        for (std::list<Object>::iterator it=tiles(grx,gry).objects.begin(); it != tiles(grx,gry).objects.end(); ++it) {
-            sprintf(idbuf, "%d", it->id);
-            drawText(idbuf, x, y);
-            y+= 32;
-            if (y > 770) {
-                x += 80;
-            }
-        }
+   SDL_Rect dstRect;
+   dstRect.x = dx;
+   dstRect.y = dy;
+   dstRect.w = w;
+   dstRect.h = h;
 
-    } else {
-        drawText("no items", 570, 650);
-    }
-    //
-
-
-
+   SDL_BlitSurface(imageSurface, &srcRect, screenSurface, &dstRect);
 }
+
 
