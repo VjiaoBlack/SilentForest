@@ -4,11 +4,9 @@ tiles[
 {pos:11;5|id:2}
 {pos:13;5|id:2}
 {pos:8;6|id:2}
-{pos:4;7|id:2}
 {pos:1;8|id:2}
 {pos:2;8|id:2}
 {pos:3;8|id:2}
-{pos:4;8|id:2}
 {pos:14;8|id:2}
 {pos:1;9|id:2}
 {pos:2;9|id:2}

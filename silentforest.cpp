@@ -3,6 +3,8 @@
 
 
 int main(int argc, char *argv[]) {
+    argc = argc + 1 - 1;
+    argv = argv + 1 - 1;
     
     /* Start up SDL */
     init("Silent Forest");
@@ -244,13 +246,13 @@ void init(char *title) {
     water = SDL_LoadBMP("water.bmp");
     SDL_SetColorKey( tree, SDL_SRCCOLORKEY, SDL_MapRGB(tree->format, 255, 0, 255) ); 
     SDL_SetColorKey( bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(bitmap->format, 255, 0, 255) ); 
+    SDL_SetColorKey( font, SDL_SRCCOLORKEY, SDL_MapRGB(bitmap->format, 255, 0, 255) ); 
 
 
     //inits the fontdata;
 
     letter_data['A'] = (letter_t) {16, 0, 0}; //sadface all this hardcoding
     char counter;
-    int i = 0;
     for (counter = 'A'; counter < 'I'; counter++) {
         letter_data[counter] = (letter_t) {16, 20*(counter - 'A'), 0};
     }
