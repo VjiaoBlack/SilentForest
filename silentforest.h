@@ -1,106 +1,104 @@
 #include "SDL/SDL.h"
+#include "game.h"
+
+
+#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <map>
+#include <list>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 using namespace std;
 
-class Tile {
-public:
-    int id; // 0-999 unwalkable, 1000-1999 walkable, 2000-2999 special tile (launches scene), 3000-3999 special tile (interactive) ...
-    int gridx, gridy;
-    int height, width;
-    int srcx, srcy;
-    SDL_Surface* graphic;
-    Tile(int, int, int, SDL_Surface*, int, int, int, int);
-    Tile();
-    // note that an actual grid should contain a linked list of tile at every cor.
-};
 
-Tile::Tile(int a, int b, int c, SDL_Surface* d, int h, int w, int sx, int sy) {
-    id = a;
-    gridx = b;
-    gridy = c;
-    graphic = d;
-    height = h;
-    width = w;
-    srcx = sx; // remove in next update
-    srcy = sy; // remove in next update
-}
+// class Object {
+//     /*
+//     int id; // 0-999 equippable, 1000-1999 usable, 2000-2999 affects gameplay (keys, talismen, extra backpack, etc) ...
+//     */
+// };
 
-Tile::Tile() {
-    id = 0;
-    gridx = 0;
-    gridy = 0;
-    graphic = NULL;
-    height = 0;
-    width = 0;
-}
+// class Stat {
+//     /*
+//     int value;
+//     */
+// };
 
-class Object {
-    /*
-    int id; // 0-999 equippable, 1000-1999 usable, 2000-2999 affects gameplay (keys, talismen, extra backpack, etc) ...
-    */
-};
+// class Relationship {
+//     /*
+//     // Human* object; // how do i put the decl of human before this??
+//     int parts[6]; // Trust, Attraction, Good-Will, Respect, Influence (that u have over them), Contentment (opposite of anger).
+//     */
+// };
 
-class Stat {
-    /*
-    int value;
-    */
-};
+// class Human {
+//     /*
+//     int hp, mp;
+//     Stat stats[6]; // str, dex, con, int, wis, char
+//     // implement personality
+//     Relationship relation; // relationship with character; this should really be an ordered arraylist.
+//     */
+// };
 
-class Relationship {
-    /*
-    // Human* object; // how do i put the decl of human before this??
-    int parts[6]; // Trust, Attraction, Good-Will, Respect, Influence (that u have over them), Contentment (opposite of anger).
-    */
-};
+#define tiles(x,y) tiles.at((y)*width + (x))
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 800
 
-class Human {
-    /*
-    int hp, mp;
-    Stat stats[6]; // str, dex, con, int, wis, char
-    // implement personality
-    Relationship relation; // relationship with character; this should really be an ordered arraylist.
-    */
-};
 
-void getInput();
-void cleanup();
-void init(char *title);
-void update();
-void draw();
-void drawText(char*, int, int);
-int drawLetter(char,int,int); // char to draw, int x, int y
-void menu_loop();
-void drawmenu();
+int gridx;
+int gridy;
+int sx;
+int sy;
 
-typedef struct letter_t {
-    int width;
-    int xpos;
-    int ypos;
-} letter_t;
+int delay;  
+
 
 std::map<char,letter_t> letter_data;
 
+SDL_Surface* font;
+SDL_Surface* screen;
 
+std::vector<Tile> tiles;
 
-Tile grid[15][20];
+int width;
+int height;
+int base_tile_id;
+int draw_id;
+int selectedx;
+int selectedy;
 
-int SCREEN_WIDTH = 640;
-int SCREEN_HEIGHT = 480;
+SDL_Surface* grass;
+SDL_Surface* water; // these should be in an array, with id as the identifier.
+
+SDL_Surface* bitmap;
+SDL_Surface* tree;
+SDL_Surface* board;
+SDL_Surface* intro;
+
+std::map<int,SDL_Surface*> sprite;
+
 int running;
 
-int xoffset, yoffset, sx, sy, gridx, gridy;
-int delay;
-
 bool keysHeld[323] = {false};
+int mousex;
+int mousey;
+int which_disp; // 0 is items, 1 is specials
+bool mouseleftdown;
 
-SDL_Surface *screen;
-SDL_Surface *grass;
-SDL_Surface *bitmap;
-SDL_Surface *tree;
-SDL_Surface *font;
-SDL_Surface *intro;
-SDL_Surface *board;
-SDL_Surface *water;
+int xoffset;
+int yoffset;
 
-void drawSprite(SDL_Surface*, SDL_Surface*, int, int, int, int, int, int);
+
+
+void update();
+void init();
+void draw();
+void draw_map();
+void get_input();
+void menu_loop();
+void draw_character();
+void load_graphics();
+

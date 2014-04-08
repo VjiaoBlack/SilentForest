@@ -77,7 +77,7 @@ void init() {
         exit(1);
     }
     
-    /* Open a 640 x 480 screen */
+    /* Open a 1280 x 800 screen */
     screen = SDL_SetVideoMode( 1280, 800, 0, SDL_HWSURFACE | SDL_DOUBLEBUF );
     grass = SDL_LoadBMP("grass.bmp");
     water = SDL_LoadBMP("water.bmp");
@@ -139,51 +139,69 @@ void get_input() {
 }
 
 void update() {
+if (delay < 1) 
+        delay = 40;
     if ( keysHeld[SDLK_ESCAPE] ) {
         running = false;
     }
-    if (keysHeld[SDLK_w]){
-        draw_id = 2;
-    }
-    if (keysHeld[SDLK_g]){
-        draw_id = 1;
-    }
-    if (keysHeld[SDLK_UP]){
-        if (keysHeld[SDLK_LSHIFT])
-            yoffset += 16;
-        else
-            yoffset+=3;
-    }
-    if (keysHeld[SDLK_DOWN]){
-        if (keysHeld[SDLK_LSHIFT])
-            yoffset -= 16;
-        else
-            yoffset-=3;
-    }
-    if (keysHeld[SDLK_LEFT]){
-        if (keysHeld[SDLK_LSHIFT])
-            xoffset += 16;
-        else
-            xoffset+=3;
-    }
-    if (keysHeld[SDLK_RIGHT]){
-        if (keysHeld[SDLK_LSHIFT])
-            xoffset -= 16;
-        else
-            xoffset-=3;
-    }
-    if (mouseleftdown && mousex > xoffset && mousey > yoffset && mousex < width*32 && mousey < height*32) {
-        if (keysHeld[SDLK_o] || keysHeld[SDLK_s]) {
-            selectedx = (mousex-xoffset)/32; 
-            selectedy = (mousey-yoffset)/32;
+    if ( keysHeld[SDLK_UP] && (xoffset == 0) && (yoffset == 0)) {
+        if (grid[gridy - 1][gridx].id / 1000 == 1 && gridy > 0) {
+            gridy--;
+            yoffset = 32;
         }
-        else if (tiles((mousex-xoffset)/32,(mousey-yoffset)/32).id != draw_id)
-            change_tile((mousex-xoffset)/32, (mousey-yoffset)/32, draw_id);
+        sy = 0;
+    } else if (keysHeld[SDLK_DOWN] && (xoffset == 0) && (yoffset == 0)) {
+        if (grid[gridy + 1][gridx].id / 1000 == 1 && gridy < 15) {
+            gridy++;
+            yoffset = -32;
+        }
+        sy = 2;
+    } else if ( keysHeld[SDLK_LEFT]  && (xoffset == 0) && (yoffset == 0) ) {
+        if (grid[gridy][gridx - 1].id / 1000 == 1 && gridx > 0) {
+            gridx--;
+            xoffset = 32;
+        }
+        sy = 1;
+    } else if ( keysHeld[SDLK_RIGHT]  && (xoffset == 0) && (yoffset == 0) ) {
+        if (grid[gridy][gridx + 1].id / 1000 == 1 && gridx < 20) {
+            gridx++;
+            xoffset = -32;
+        }
+        sy = 3;
+    } else if (xoffset == 0 && yoffset == 0) {
+        delay = 0;
+        sx = 0;
     }
-    if (keysHeld[SDLK_o]) 
-        which_disp = 0;
-    if (keysHeld[SDLK_s])
-        which_disp = 1;
+
+    if (xoffset > 0) {
+        xoffset -= 2;
+        delay--;
+    }
+    if (xoffset < 0) {
+        xoffset += 2;
+        delay--;
+    }
+    if (yoffset > 0) {
+        yoffset -= 2;
+        delay--;
+    }
+    if (yoffset < 0) {
+        yoffset += 2;
+        delay--;
+    }
+
+    switch (delay / 10 ) {
+        case 0:
+        case 2:
+            sx = 0;
+            break;
+        case 1:
+            sx = 1;
+            break;
+        case 3: 
+            sx = 2;
+            break;
+    }
 }
 
 void draw(){
@@ -206,22 +224,7 @@ void draw_map() {
 }
 
 void draw_menu() {
-        SDL_Rect rect = {0,600,1280,200};
-        SDL_FillRect(screen, &rect, 0x0055FF);
-        drawSprite(sprite[draw_id], screen, 0, 0, 50, 650, 32, 32);
 
-        // this draws minimap
-        for(int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                drawSprite(sprite[tiles(x,y).id], screen, 0, 0, 100+x*4, 650+y*4, 4, 4);
-            }
-        }
-
-        // indicator for what is currently being edited.
-        if (keysHeld[SDLK_o])  
-            drawText("object", 280, 690);
-        if (keysHeld[SDLK_s])
-            drawText("specials", 280, 690);
 }
 
 
