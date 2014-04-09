@@ -53,21 +53,21 @@ int main(int argc, char *argv[]) {
 }
 
 void drawmenu(int choice) {
-    drawSprite(intro, screen, 0, 0, 0, 0, 640, 480);
-    drawSprite(board, screen, 0, 0, 200, 200, 240, 160);
+    drawSprite(intro, screen, 0, 0, 320, 300, 640, 480);
+    drawSprite(board, screen, 0, 0, 520, 500, 240, 160);
 
-    drawText("Silent Forest", 220, 210);
-    drawText("Play", 260, 260);
-    drawText("Exit", 260, 300);
+    drawText("Silent Forest", 540, 510);
+    drawText("Play", 580, 560);
+    drawText("Exit", 580, 600);
 
 
 
     switch (choice) {
         case 0:
-            drawText(">", 240, 260);
+            drawText(">", 560, 560);
             break;
         case 1:
-            drawText(">", 240, 300);
+            drawText(">", 560, 600);
             break;
     }
 
@@ -110,6 +110,7 @@ void menu_loop() {
                     case SDLK_ESCAPE:
                     case SDLK_q:    
                         running = 0;
+                        choice = 1;
                         break;
                     default:      
                         break;
@@ -145,9 +146,9 @@ void draw() {
 
     //         }
     //         if ((x == gridx && y == gridy) ||
-    //             (xoffset > 0 && gridx + 1 == x && y == gridy) || 
-    //             (yoffset > 0 && gridy + 1 == y && x == gridx)) {
-    //             drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset, 32, 32); // draws char.
+    //             (xcharoffset > 0 && gridx + 1 == x && y == gridy) || 
+    //             (ycharoffset > 0 && gridy + 1 == y && x == gridx)) {
+    //             drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xcharoffset, gridy * 32 + ycharoffset, 32, 32); // draws char.
     //             // NOTE: must implement the walking-on-gridlines algorithm
     //                 // MUST MUST MUST IMPLEMENT :((
     //         }
@@ -161,35 +162,18 @@ void draw_map() {
         for (int x = 0; x < width; x++) {
             dx = x * 32;
             dy = y * 32;
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(0).srcx, tiles(x,y).graphic.at(0).srcy, dx   /*+xoffset*/, dy   /*+yoffset*/, 16, 16);
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(1).srcx, tiles(x,y).graphic.at(1).srcy, dx+16/*+xoffset*/, dy   /*+yoffset*/, 16, 16);
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(2).srcx, tiles(x,y).graphic.at(2).srcy, dx   /*+xoffset*/, dy+16/*+yoffset*/, 16, 16);
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(3).srcx, tiles(x,y).graphic.at(3).srcy, dx+16/*+xoffset*/, dy+16/*+yoffset*/, 16, 16);
-            if ((x == gridx && y == gridy) ||
-                (xoffset > 0 && gridx + 1 == x && y == gridy) || 
-                (yoffset > 0 && gridy + 1 == y && x == gridx)) {
-                drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset, 32, 32); // draws char.
-                // NOTE: must implement the walking-on-gridlines algorithm
-                    // MUST MUST MUST IMPLEMENT :((
-            }
-
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(0).srcx, tiles(x,y).graphic.at(0).srcy, dx   +xmapoffset, dy   +ymapoffset, 16, 16);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(1).srcx, tiles(x,y).graphic.at(1).srcy, dx+16+xmapoffset, dy   +ymapoffset, 16, 16);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(2).srcx, tiles(x,y).graphic.at(2).srcy, dx   +xmapoffset, dy+16+ymapoffset, 16, 16);
+            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(3).srcx, tiles(x,y).graphic.at(3).srcy, dx+16+xmapoffset, dy+16+ymapoffset, 16, 16);
 
         }
     }
 }
 
 void draw_character() {
-    // for (int x = 0; x < width; x++) {
-    //     for (int y = 0; y < height; y++) {
-    //         if ((x == gridx && y == gridy) ||
-    //             (xoffset > 0 && gridx + 1 == x && y == gridy) || 
-    //             (yoffset > 0 && gridy + 1 == y && x == gridx)) {
-    //             drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xoffset, gridy * 32 + yoffset, 32, 32); // draws char.
-    //             // NOTE: must implement the walking-on-gridlines algorithm
-    //                 // MUST MUST MUST IMPLEMENT :((
-    //         }
-    //     }
-    // }
+    drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xcharoffset + xmapoffset, gridy * 32 + ycharoffset + ymapoffset, 32, 32); // draws char.
+
 }
 
 void get_input() {
@@ -208,7 +192,6 @@ void get_input() {
                 break;
             case SDL_KEYDOWN:
                 keysHeld[event.key.keysym.sym] = true;
-                printf("asdf\n");
                 break;
             break;
         }
@@ -216,60 +199,82 @@ void get_input() {
 }
 
 void update() {
-    int y = 0; 
-    int x = 0;
     if (delay < 1) 
-        delay = 40;
+        delay = 32;
     if ( keysHeld[SDLK_ESCAPE] ) {
         running = false;
     }
-    if ( keysHeld[SDLK_UP] && (xoffset == 0) && (yoffset == 0)) {
+
+    // following moves char's grid pos if is prefectly aligned.
+    if ( keysHeld[SDLK_UP] && (xcharoffset == 0) && (ycharoffset == 0)) {
         // if (tiles(x,y-1).id / 1000 == 1 && gridy > 0) {
             gridy--;
-            yoffset = 32;
+            ycharoffset = 32;
         // }
         sy = 0;
-    } else if (keysHeld[SDLK_DOWN] && (xoffset == 0) && (yoffset == 0)) {
+    } else if (keysHeld[SDLK_DOWN] && (xcharoffset == 0) && (ycharoffset == 0)) {
         // if (tiles(x,y+1).id / 1000 == 1 && gridy < 15) {
             gridy++;
-            yoffset = -32;
+            ycharoffset = -32;
         // }
         sy = 2;
-    } else if ( keysHeld[SDLK_LEFT]  && (xoffset == 0) && (yoffset == 0) ) {
+    } else if ( keysHeld[SDLK_LEFT]  && (xcharoffset == 0) && (ycharoffset == 0) ) {
         // if (tiles(x-1,y).id / 1000 == 1 && gridx > 0) {
             gridx--;
-            xoffset = 32;
+            xcharoffset = 32;
         // }
         sy = 1;
-    } else if ( keysHeld[SDLK_RIGHT]  && (xoffset == 0) && (yoffset == 0) ) {
+    } else if ( keysHeld[SDLK_RIGHT]  && (xcharoffset == 0) && (ycharoffset == 0) ) {
         // if (tiles(x+1,y).id / 1000 == 1 && gridx < 20) {
             gridx++;
-            xoffset = -32;
+            xcharoffset = -32;
         // }
         sy = 3;
-    } else if (xoffset == 0 && yoffset == 0) {
+    } else if (xcharoffset == 0 && ycharoffset == 0) {
         delay = 0;
         sx = 0;
     }
 
-    if (xoffset > 0) {
-        xoffset -= 2;
+
+
+
+    if (xcharoffset > 0) { // to the left
+        if (gridx)
+        xcharoffset -= 4;
         delay--;
     }
-    if (xoffset < 0) {
-        xoffset += 2;
+    if (xcharoffset < 0) { // to the right
+        xcharoffset += 4;
         delay--;
     }
-    if (yoffset > 0) {
-        yoffset -= 2;
+    if (ycharoffset > 0) { // to the top
+        ycharoffset -= 4;
         delay--;
     }
-    if (yoffset < 0) {
-        yoffset += 2;
+    if (ycharoffset < 0) { // to the bottom
+        ycharoffset += 4;
         delay--;
     }
 
-    switch (delay / 10 ) {
+
+
+
+
+    if ( (gridx * 32 + xcharoffset + xmapoffset) > (width * 8) + 8 ) {
+        xmapoffset = 0 - 32*gridx - 32 - xcharoffset + width * 8;
+    } else if ( (gridx * 32 + xcharoffset + xmapoffset) < (width * 8) + 8) {
+        xmapoffset = 0 - 32*gridx - 32 - xcharoffset + width * 8;
+    }   
+
+    if ( (gridy * 32 + ycharoffset + ymapoffset) > (height * 8) + 8) {
+        ymapoffset = 0 - 32*gridy - 32 - ycharoffset + height * 8;
+    } else if ( (gridy * 32 + ycharoffset + ymapoffset) < (height * 8) + 8) {
+        ymapoffset = 0 - 32*gridy - 32 - ycharoffset + height * 8;
+    }
+
+
+
+    switch ((delay / 4) % 4 ) {
         case 0:
         case 2:
             sx = 0;
@@ -299,7 +304,9 @@ void init() {
     // /* Set the screen title */ // ???
     // SDL_WM_SetCaption(title, "Silent Forest");
 
-    running = 1, xoffset = 0, yoffset = 0, sx = 0, sy = 3, gridx = 5, gridy = 7;
+    running = 1, xcharoffset = 0, ycharoffset = 0, sx = 0, sy = 3, gridx = 5, gridy = 7;
+    xmapoffset = 0, ymapoffset = 0;
+
     init_font();
     bitmap = SDL_LoadBMP("Chris.bmp");
     grass = SDL_LoadBMP("grass.bmp");

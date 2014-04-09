@@ -88,8 +88,11 @@ int mousey;
 int which_disp; // 0 is items, 1 is specials
 bool mouseleftdown;
 
-int xoffset;
-int yoffset;
+int xcharoffset;
+int ycharoffset;
+
+int xmapoffset;
+int ymapoffset;
 
 
 

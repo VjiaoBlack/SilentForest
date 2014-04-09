@@ -1,4 +1,10 @@
-all: silentforest
+all: silentforest mapmaker
+
+mapmaker: mapmaker.o font.o mapio.o game.o
+	g++ mapmaker.o font.o mapio.o game.o -o mapmaker `sdl-config --cflags --libs` -Wall -Wextra
+
+mapmaker.o: mapmaker.cpp mapmaker.h game.h
+	g++ -c mapmaker.cpp -o mapmaker.o `sdl-config --cflags --libs` -Wall -Wextra
 
 silentforest: silentforest.o font.o mapio.o game.o
 	g++ silentforest.o font.o mapio.o game.o -o silentforest `sdl-config --cflags --libs` -Wall -Wextra
@@ -17,4 +23,5 @@ game.o: game.cpp game.h
 
 clean:
 	rm silentforest
+	rm mapmaker
 	rm *.o

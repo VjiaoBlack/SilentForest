@@ -384,7 +384,7 @@ FILE* parse_input(int argc, char* argv[]) {
         }
 
     } else {
-        printf("./mapmaker <mapname>\n");
+        printf("./<mapmaker or silentforest> <mapname>\n");
         return NULL;
     }
     return mapfile;
