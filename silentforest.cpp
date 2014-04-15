@@ -17,14 +17,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
-// 
     // main menu
     menu_loop();
 
     while (running) {
-        get_input();   
+        get_input();  
+
+        respond_to_input();
 
         update();
+
+
 
         //draws the scene
 
@@ -33,7 +36,7 @@ int main(int argc, char *argv[]) {
         SDL_Flip(screen);
 
         /* Sleep briefly to stop sucking up all the CPU time */
-        SDL_Delay(16);
+        SDL_Delay(1);
     }
     SDL_FreeSurface(bitmap);
     SDL_FreeSurface(tree);
@@ -80,7 +83,6 @@ void menu_loop() {
     int choice = 0;
     int running = 1;
     while(running) {
-        // i should draw something here.
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
@@ -122,53 +124,136 @@ void menu_loop() {
     }
 }
 
+void respond_to_input() {
+    if (keysHeld[SDLK_i]) {
+        inventory_loop();
+        keysHeld[SDLK_i] = 0;
+    }
+}
+
+void inventory_loop() {
+
+    int running = 1;
+    SDL_Event event;
+
+    while(running) {
+        if (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                    case SDLK_q:    
+                        running = 0;
+                        break;
+                    default:      
+                        break;
+                }
+            }
+        }
+        SDL_Delay(16);
+        draw_inventory();
+
+    }
+
+
+}
+
+void draw_inventory() {
+
+
+    SDL_Rect bkgrd = {0,0,1280, 800};
+
+    SDL_FillRect(screen, &bkgrd, 0xCCCCCC);
+
+    drawText("Inventory", 7 * 32, SCREEN_HEIGHT - 4 * 32);
+
+    int a = 100;
+    int b = 200;
+    int pos = 0;
+    stringstream idstrm;
+
+
+
+    SDL_Rect square = {a,b,30,30};
+
+    for (int y = 0; y < 10; y++) {
+        for (int x = 0; x < 10; x++) {
+            pos = y * 10 + x;
+            square.x = a + 32 * x;
+            SDL_FillRect(screen, &square, 0xAAAAAA);
+
+        }
+        square.y = b + 32 * y;
+    }
+
+    for (int y = 0; y < 10; y++) {
+        for (int x = 0; x < 10; x++) {
+            pos = y * 10 + x;
+
+            if (pos < (int) inventory.size()) {
+                idstrm.str(std::string());
+                idstrm << tiles(gridx,gridy).objects[pos].id;
+                drawText(idstrm.str(), a + 32 * x, b + 32 * y);
+            }
+        }
+    }
+    SDL_Flip(screen);
+}
+
 
 void draw() {
 
     draw_map();
     draw_character();
+    draw_stats();
+    draw_debug();
+}
+
+void draw_debug() {
+
+}
+
+void draw_stats() {
+    SDL_Rect rect = {0,SCREEN_HEIGHT - 5 * 32,SCREEN_WIDTH,5 * 32};
+    SDL_FillRect(screen, &rect, 0x0055FF);
+
+    drawText("HP>", 2 * 32, SCREEN_HEIGHT - 4 * 32);
+    drawText("MP>", 2 * 32, SCREEN_HEIGHT - 3 * 32);
+
+    drawText("15", 4 * 32, SCREEN_HEIGHT - 4 * 32);
+    drawText("2", 4 * 32, SCREEN_HEIGHT - 3 * 32);
 
 
-    // for (int y = 0; y < 15; y++) {
-    //     for (int x = 0; x < 20; x++) {
-    //         switch (grid[y][x].id) {
-    //             case 1000: // grass
-    //                 drawSprite(grid[y][x].graphic, screen, grid[y][x].srcx, grid[y][x].srcy, grid[y][x].gridx*32,grid[y][x].gridy*32,32,32);
-    //                 break;
-    //             case 1: // tree
-    //                 drawSprite(grass, screen, 0,0,grid[y][x].gridx*32,grid[y][x].gridy*32,32,32); // placehodler
-    //                 drawSprite(grid[y][x].graphic, screen, 0, 0, grid[y][x].gridx*32 - grid[y][x].width + 32, grid[y][x].gridy*32 - grid[y][x].height + 32, grid[y][x].width, grid[y][x].height);
-    //                 break;
-    //             case 2: // water
-    //                 break;
-
-
-
-    //         }
-    //         if ((x == gridx && y == gridy) ||
-    //             (xcharoffset > 0 && gridx + 1 == x && y == gridy) || 
-    //             (ycharoffset > 0 && gridy + 1 == y && x == gridx)) {
-    //             drawSprite(bitmap, screen, sx * 32, sy * 32, gridx * 32 + xcharoffset, gridy * 32 + ycharoffset, 32, 32); // draws char.
-    //             // NOTE: must implement the walking-on-gridlines algorithm
-    //                 // MUST MUST MUST IMPLEMENT :((
-    //         }
-    //     }
-    // }
+   
 }
 
 void draw_map() {
-    int dx = 0, dy = 0;
+
+
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            dx = x * 32;
-            dy = y * 32;
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(0).srcx, tiles(x,y).graphic.at(0).srcy, dx   +xmapoffset, dy   +ymapoffset, 16, 16);
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(1).srcx, tiles(x,y).graphic.at(1).srcy, dx+16+xmapoffset, dy   +ymapoffset, 16, 16);
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(2).srcx, tiles(x,y).graphic.at(2).srcy, dx   +xmapoffset, dy+16+ymapoffset, 16, 16);
-            drawSprite(sprite[tiles(x,y).id], screen, tiles(x,y).graphic.at(3).srcx, tiles(x,y).graphic.at(3).srcy, dx+16+xmapoffset, dy+16+ymapoffset, 16, 16);
+            draw_tile(x,y);
+
 
         }
     }
+}
+
+void draw_tile(int grx, int gry) {
+
+    // TODO: Implement drawing of tiles that are bigger than 1 unit.
+
+    int dx = 0, dy = 0;
+    dx = grx * 32;
+    dy = gry * 32;
+    drawSprite(sprite[tiles(grx,gry).id], screen, tiles(grx,gry).graphic.at(0).srcx, tiles(grx,gry).graphic.at(0).srcy, dx   +xmapoffset, dy   +ymapoffset, 16, 16);
+    drawSprite(sprite[tiles(grx,gry).id], screen, tiles(grx,gry).graphic.at(1).srcx, tiles(grx,gry).graphic.at(1).srcy, dx+16+xmapoffset, dy   +ymapoffset, 16, 16);
+    drawSprite(sprite[tiles(grx,gry).id], screen, tiles(grx,gry).graphic.at(2).srcx, tiles(grx,gry).graphic.at(2).srcy, dx   +xmapoffset, dy+16+ymapoffset, 16, 16);
+    drawSprite(sprite[tiles(grx,gry).id], screen, tiles(grx,gry).graphic.at(3).srcx, tiles(grx,gry).graphic.at(3).srcy, dx+16+xmapoffset, dy+16+ymapoffset, 16, 16);
+
+    for (std::vector<Object>::iterator it = tiles(grx,gry).objects.begin(); it != tiles(grx,gry).objects.end(); it++) {
+        drawSprite(chest, screen, 0, 0, dx + xmapoffset, dy + ymapoffset, 32, 32);
+    }
+
 }
 
 void draw_character() {
@@ -205,30 +290,31 @@ void update() {
         running = false;
     }
 
+
     // following moves char's grid pos if is prefectly aligned.
     if ( keysHeld[SDLK_UP] && (xcharoffset == 0) && (ycharoffset == 0)) {
-        // if (tiles(x,y-1).id / 1000 == 1 && gridy > 0) {
+        if ( (gridy > 0) && tiles(gridx,gridy-1).id / 1000 == 0) {
             gridy--;
             ycharoffset = 32;
-        // }
+        }
         sy = 0;
     } else if (keysHeld[SDLK_DOWN] && (xcharoffset == 0) && (ycharoffset == 0)) {
-        // if (tiles(x,y+1).id / 1000 == 1 && gridy < 15) {
+        if ( (gridy<height-1) && tiles(gridx,gridy+1).id / 1000 == 0) {
             gridy++;
             ycharoffset = -32;
-        // }
+        }
         sy = 2;
     } else if ( keysHeld[SDLK_LEFT]  && (xcharoffset == 0) && (ycharoffset == 0) ) {
-        // if (tiles(x-1,y).id / 1000 == 1 && gridx > 0) {
+        if ( (gridx>0) && tiles(gridx-1,gridy).id / 1000 == 0) {
             gridx--;
             xcharoffset = 32;
-        // }
+        }
         sy = 1;
     } else if ( keysHeld[SDLK_RIGHT]  && (xcharoffset == 0) && (ycharoffset == 0) ) {
-        // if (tiles(x+1,y).id / 1000 == 1 && gridx < 20) {
+        if ( (gridx<width-1) && tiles(gridx+1,gridy).id / 1000 == 0) {
             gridx++;
             xcharoffset = -32;
-        // }
+        }
         sy = 3;
     } else if (xcharoffset == 0 && ycharoffset == 0) {
         delay = 0;
@@ -239,7 +325,6 @@ void update() {
 
 
     if (xcharoffset > 0) { // to the left
-        if (gridx)
         xcharoffset -= 4;
         delay--;
     }
@@ -257,21 +342,43 @@ void update() {
     }
 
 
+    // the following codes for the effect where the view follows the camera
+    int charx = gridx * 32;
+    int chary = gridy * 32;
+    int scrnheight = SCREEN_HEIGHT / 32 - 5; // -5 for the stats menu
+    int scrnwidth = SCREEN_WIDTH / 32;
+
+    if ( charx >= (scrnwidth / 2) * 32   &&   charx <= width * 32 - (scrnwidth / 2) * 32) {
+        if (xcharoffset >= 0 && gridx < width - scrnwidth / 2) {
+            xmapoffset = 0 - charx - xcharoffset + (scrnwidth / 2) * 32;
+        }
+        else if (xcharoffset <= 0 && gridx > scrnwidth / 2 ) {
+            xmapoffset = 0 - charx - xcharoffset + (scrnwidth / 2) * 32;
+        }
+    }  
+
+    if ( chary >= (scrnheight / 2) * 32  &&   chary <= height * 32 - (scrnheight / 2) * 32) {
+        if (ycharoffset >= 0 && gridy < height - scrnheight / 2) {
+            ymapoffset = 0 - chary - ycharoffset + (scrnheight / 2) * 32; // UGH TODO
+        }
+        else if (ycharoffset <= 0 && gridy > scrnheight / 2) { // going down
+            ymapoffset = 0 - chary - ycharoffset + (scrnheight / 2) * 32;
+        }
+    } 
 
 
 
-    if ( (gridx * 32 + xcharoffset + xmapoffset) > (width * 8) + 8 ) {
-        xmapoffset = 0 - 32*gridx - 32 - xcharoffset + width * 8;
-    } else if ( (gridx * 32 + xcharoffset + xmapoffset) < (width * 8) + 8) {
-        xmapoffset = 0 - 32*gridx - 32 - xcharoffset + width * 8;
-    }   
+    // viewing objects
 
-    if ( (gridy * 32 + ycharoffset + ymapoffset) > (height * 8) + 8) {
-        ymapoffset = 0 - 32*gridy - 32 - ycharoffset + height * 8;
-    } else if ( (gridy * 32 + ycharoffset + ymapoffset) < (height * 8) + 8) {
-        ymapoffset = 0 - 32*gridy - 32 - ycharoffset + height * 8;
+    if ( keysHeld[SDLK_SPACE] ) {
+        // picks up stuff
+        if ((int) tiles(gridx,gridy).objects.size() > 0) {
+            inventory.push_back(tiles(gridx,gridy).objects[ tiles(gridx,gridy).objects.size() - 1 ] );
+            tiles(gridx,gridy).objects.pop_back();
+            keysHeld[SDLK_SPACE] = 0;
+        }
+
     }
-
 
 
     switch ((delay / 4) % 4 ) {
@@ -315,6 +422,7 @@ void init() {
     board = SDL_LoadBMP("board.bmp");
     intro = SDL_LoadBMP("intro.bmp");
     water = SDL_LoadBMP("water.bmp");
+    chest = SDL_LoadBMP("chest.bmp");
 
     if (tree)
         SDL_SetColorKey( tree, SDL_SRCCOLORKEY, SDL_MapRGB(tree->format, 255, 0, 255) ); 
@@ -333,8 +441,8 @@ void init() {
 }
 
 void load_graphics() {
-    sprite[1] = grass;
-    sprite[2] = water;
+    sprite[0] = grass;
+    sprite[1010] = water;
 }
 
 void cleanup() {

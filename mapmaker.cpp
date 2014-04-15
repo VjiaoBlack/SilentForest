@@ -6,10 +6,7 @@
 
 
 int main(int argc, char* argv[]) {
-    int which = -1; // -1 is uninitialized, 0 is tiles, 1 is items, 2 is special
-    int end = 0;
-    int x, y, id;
-    int i = 0;
+    int x, y;
     // char* pointer; // each pointer gets 10 chars. // what does this do again
     FILE* mapfile = NULL;
     

@@ -93,7 +93,7 @@ void edit_objects(int grx, int gry) {
     int x = 570, y = 650;
     // print out all the objects here
     if (tiles(grx,gry).objects.size() > 0) {
-        for (std::list<Object>::iterator it=tiles(grx,gry).objects.begin(); it != tiles(grx,gry).objects.end(); ++it) {
+        for (std::vector<Object>::iterator it=tiles(grx,gry).objects.begin(); it != tiles(grx,gry).objects.end(); ++it) {
             sprintf(idbuf, "%d", it->id);
             y+= 32;
             if (y > 770) {
@@ -119,7 +119,7 @@ std::string parse_item(Tile tile) {
     char* tostring = (char*) malloc(sizeof(char) * 64);
     sprintf(tostring,"%d;%d:{",tile.gridx,tile.gridy);
     output.append(tostring);
-    std::list<Object>::iterator it=tile.objects.begin();
+    std::vector<Object>::iterator it=tile.objects.begin();
     while (it != tile.objects.end()) {
         sprintf(itemid,"%d",it->id);
         output.append(itemid);
@@ -183,7 +183,7 @@ void update_tile(int x, int y, int id) {
     Graphic insert;
 
 
-    if (id == 1) {
+    if (id == 0) {
         insert = new Graphic(16, 16, 0, 0, id);
         tiles(x,y).graphic.at(0) = (insert);
         insert = new Graphic(16, 16, 16, 0, id);
@@ -289,7 +289,7 @@ FILE* parse_input(int argc, char* argv[]) {
             // printf("scanned: height is %d, width is %d, base tile id is %d\n", height, width, base_tile_id);
             
 
-            init_map(base_tile_id = 1);
+            init_map(base_tile_id);
 
             // printf("initialized map with given constraints.\n");
             while (!end) { // reads line by line ish
@@ -392,7 +392,7 @@ FILE* parse_input(int argc, char* argv[]) {
 
 void init_map(int id) {
     int x, y;
-    draw_id = 1;
+    draw_id = 0;
     selectedx = -1;
     selectedy = -1;
     tiles.resize(height*width);

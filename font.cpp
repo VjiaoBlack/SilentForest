@@ -13,7 +13,7 @@ void init_font() {
     for (counter = 'J'; counter < 'M'; counter++) {
         letter_data[counter] = (letter_t) {16, 20*(counter - 'A') - 4, 0};
     }
-    letter_data['M'] = (letter_t) {20, 260, 0};
+    letter_data['M'] = (letter_t) {20, 236, 0};
     for (counter = 'N'; counter < 'T'; counter++) {
         letter_data[counter] = (letter_t) {16, 20*(counter - 'A'), 0};
     }

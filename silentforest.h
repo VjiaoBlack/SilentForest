@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -77,8 +78,10 @@ SDL_Surface* bitmap;
 SDL_Surface* tree;
 SDL_Surface* board;
 SDL_Surface* intro;
+SDL_Surface* chest;
 
 std::map<int,SDL_Surface*> sprite;
+std::vector<Object> inventory; // PLACEHOLDER
 
 int running;
 
@@ -103,5 +106,10 @@ void draw_map();
 void get_input();
 void menu_loop();
 void draw_character();
+void draw_debug();
 void load_graphics();
-
+void draw_stats();
+void draw_tile(int, int);
+void inventory_loop();
+void respond_to_input();
+void draw_inventory();

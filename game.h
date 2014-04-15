@@ -34,7 +34,7 @@ public:
     int id; // 0-999 walkable, 1000-1999 unwalkable, 2000-2999 special tile (launches scene), 3000-3999 special tile (interactive) ...
     int gridx, gridy;
     std::vector<Graphic> graphic;
-    std::list<Object> objects;
+    std::vector<Object> objects;
     std::map<std::string,std::string> specials;
 
     Tile(int, int, int, std::vector<Graphic>);
